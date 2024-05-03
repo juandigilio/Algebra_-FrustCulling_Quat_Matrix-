@@ -3,8 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Exercices
+{
+    Uno = 1,
+    Dos = 2,
+    Tres = 3,
+    Cuatro = 4,
+    Cinco = 5,
+    Seis = 6,
+    Siete = 7,
+    Ocho = 8,
+    Nueve = 9,
+    Diez = 10
+}
+
 public class MyExercises : MonoBehaviour
 {
+    [SerializeField] private Exercices exercise;
+
     [SerializeField] private Vector3 a1;
     [SerializeField] private Vector3 b1;
     [SerializeField] private Vector3 c1;
@@ -23,6 +39,7 @@ public class MyExercises : MonoBehaviour
     [SerializeField] private float resultingAngle;
     [SerializeField] private float lastAngle_a1;
     [SerializeField] private float lastAngle_b1;
+
 
 
     [SerializeField] private float duration = 1.0f;
@@ -51,8 +68,60 @@ public class MyExercises : MonoBehaviour
 
     private void Update()
     {
-        c1 = Exercise10();
-        //Exercise9();
+        switch ((int)exercise)
+        {
+            case 1:
+                {
+                    c1 = Exercise1();
+                    break;
+                }
+            case 2:
+                {
+                    c1 = Exercise2();
+                    break;
+                }
+            case 3:
+                {
+                    c1 = Exercise3();
+                    break;
+                }
+            case 4:
+                {
+                    c1 = Exercise4();
+                    break;
+                }
+            case 5:
+                {
+                    c1 = Exercise5();
+                    break;
+                }
+            case 6:
+                {
+                    c1 = Exercise6();
+                    break;
+                }
+            case 7:
+                {
+                    c1 = Exercise7();
+                    break;
+                }
+            case 8:
+                {
+                    c1 = Exercise8();
+                    break;
+                }
+            case 9:
+                {
+                    c1 = Exercise9();
+                    break;
+                }
+            case 10:
+                {
+                    c1 = Exercise10();
+                    break;
+                }
+        }
+
         Vector3Debugger.UpdatePosition(vectorId[0], a1);
         Vector3Debugger.UpdatePosition(vectorId[1], b1);
         Vector3Debugger.UpdatePosition(vectorId[2], c1);
@@ -132,7 +201,6 @@ public class MyExercises : MonoBehaviour
         result.Normalize();
 
         distance_A1B1 = Vector3.Distance(a1, b1);
-        //hisResultMagnitude = hisResult.magnitude;
 
         Vector3 scaledResult = result * distance_A1B1;
         resultMagnitude = scaledResult.magnitude;
@@ -170,6 +238,8 @@ public class MyExercises : MonoBehaviour
 
     public Vector3 Exercise10()
     {
+        duration = 10;
+
         Vector3 result;
 
         if (elapsedTime < duration)

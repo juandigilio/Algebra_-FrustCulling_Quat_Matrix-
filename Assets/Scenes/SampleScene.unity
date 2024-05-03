@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 79397601}
   - component: {fileID: 79397600}
+  - component: {fileID: 79397602}
   m_Layer: 0
   m_Name: Ejercicios
   m_TagString: Untagged
@@ -171,6 +172,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &79397602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79397599}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90bc7295b0f288643859b914265a904a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  exercise: 0
+  a1: {x: 0, y: 0, z: 0}
+  b1: {x: 0, y: 0, z: 0}
+  c1: {x: 0, y: 0, z: 0}
+  hisResult: {x: 0, y: 0, z: 0}
+  t: 0
+  distance_A1B1: 0
+  resultMagnitude: 0
+  hisResultMagnitude: 0
+  magnitude_A1: 0
+  magnitude_B1: 0
+  angle_A1B1: 0
+  angle_A1_hisResult: 0
+  angle_B1_hisResult: 0
+  resultingAngle: 0
+  lastAngle_a1: 0
+  lastAngle_b1: 0
+  duration: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -381,14 +412,28 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1175226768}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90bc7295b0f288643859b914265a904a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  exercise: 0
   a1: {x: 3, y: 2, z: 1}
   b1: {x: 1, y: 3, z: 2}
   c1: {x: 1, y: 1, z: 1}
+  hisResult: {x: 0, y: 0, z: 0}
+  t: 0
+  distance_A1B1: 0
+  resultMagnitude: 0
+  hisResultMagnitude: 0
+  magnitude_A1: 0
+  magnitude_B1: 0
+  angle_A1B1: 0
+  angle_A1_hisResult: 0
+  angle_B1_hisResult: 0
+  resultingAngle: 0
+  lastAngle_a1: 0
+  lastAngle_b1: 0
   duration: 1
 --- !u!4 &1175226770
 Transform:
