@@ -1,15 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
+
 namespace CustomMath
 {
+    [System.Serializable]
     public struct Vec3 : IEquatable<Vec3>
     {
         #region Variables
-        public float x;
-        public float y;
-        public float z;
+        [SerializeField] public float x;
+        [SerializeField] public float y;
+        [SerializeField] public float z;
 
         public float sqrMagnitude { get { return x * x + y * y + z * z; } }
         public float magnitude { get { return (float)Math.Sqrt(x * x + y * y + z * z); ; } }
@@ -79,6 +79,7 @@ namespace CustomMath
             float sqrmag = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
             return sqrmag < epsilon * epsilon;
         }
+
         public static bool operator !=(Vec3 left, Vec3 right)
         {
             return !(left == right);
@@ -109,6 +110,15 @@ namespace CustomMath
             return v3 * scalar;
         }
 
+        public static Vec3 operator *(Quaternion rotation, Vec3 v3)
+        {
+            Quaternion vQuat = new Quaternion(v3.x, v3.y, v3.z, 0);
+
+            Quaternion result= rotation * vQuat * Quaternion.Inverse(rotation);
+
+            return new Vec3(result.x, result.y, result.z);
+        }
+
         public static Vec3 operator /(Vec3 v3, float scalar)
         {
             return new Vec3(v3.x / scalar, v3.y / scalar, v3.z / scalar);
@@ -117,6 +127,7 @@ namespace CustomMath
         public static implicit operator Vector3(Vec3 v3)
         {
             return new Vector3(v3.x, v3.y, v3.z);
+            
         }
 
         public static implicit operator Vector2(Vec3 v2)

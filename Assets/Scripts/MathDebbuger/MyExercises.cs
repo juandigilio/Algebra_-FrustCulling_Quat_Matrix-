@@ -2,6 +2,7 @@ using MathDebbuger;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomMath;
 
 public enum Exercices
 {
@@ -21,11 +22,12 @@ public class MyExercises : MonoBehaviour
 {
     [SerializeField] private Exercices exercise;
 
-    [SerializeField] private Vector3 a1;
-    [SerializeField] private Vector3 b1;
-    [SerializeField] private Vector3 c1;
+    //Uso Vector3 solo para el serializedField y luego lo paso a Vec3
+    [SerializeField] private Vector3 A;
+    [SerializeField] private Vector3 B;
+    [SerializeField] private Vector3 C;
 
-    [SerializeField] private Vector3 hisResult;
+    [SerializeField] private Vec3 hisResult;
     [SerializeField] private float t;
     [SerializeField] private float distance_A1B1;
     [SerializeField] private float resultMagnitude;
@@ -40,6 +42,10 @@ public class MyExercises : MonoBehaviour
     [SerializeField] private float lastAngle_a1;
     [SerializeField] private float lastAngle_b1;
 
+    private Vec3 a;
+    private Vec3 b;
+    private Vec3 c;
+
 
 
     [SerializeField] private float duration = 1.0f;
@@ -53,125 +59,135 @@ public class MyExercises : MonoBehaviour
         vectorId.Add("Vector 2");
         vectorId.Add("Vector 3");
 
-        Vector3Debugger.AddVector(a1, Color.white, vectorId[0]);
-        Vector3Debugger.AddVector(b1, Color.black, vectorId[1]);
-        Vector3Debugger.AddVector(c1, Color.red, vectorId[2]);
+        Vector3Debugger.AddVector(a, Color.white, vectorId[0]);
+        Vector3Debugger.AddVector(b, Color.black, vectorId[1]);
+        Vector3Debugger.AddVector(c, Color.red, vectorId[2]);
 
-        a1.x = 1;
-        a1.y = 2;
-        a1.z = 1;
+        A.x = 1;
+        A.y = 2;
+        A.z = 1;
 
-        b1.x = 4;
-        b1.y = 3;
-        b1.z = 2;
+        B.x = 4;
+        B.y = 3;
+        B.z = 2;
     }
 
     private void Update()
     {
+        GetInspectorData();
+
         switch ((int)exercise)
         {
             case 1:
                 {
-                    c1 = Exercise1();
+                    c = Exercise1();
                     break;
                 }
             case 2:
                 {
-                    c1 = Exercise2();
+                    c = Exercise2();
                     break;
                 }
             case 3:
                 {
-                    c1 = Exercise3();
+                    c = Exercise3();
                     break;
                 }
             case 4:
                 {
-                    c1 = Exercise4();
+                    c = Exercise4();
                     break;
                 }
             case 5:
                 {
-                    c1 = Exercise5();
+                    c = Exercise5();
                     break;
                 }
             case 6:
                 {
-                    c1 = Exercise6();
+                    c = Exercise6();
                     break;
                 }
             case 7:
                 {
-                    c1 = Exercise7();
+                    c = Exercise7();
                     break;
                 }
             case 8:
                 {
-                    c1 = Exercise8();
+                    c = Exercise8();
                     break;
                 }
             case 9:
                 {
-                    c1 = Exercise9();
+                    c = Exercise9();
                     break;
                 }
             case 10:
                 {
-                    c1 = Exercise10();
+                    c = Exercise10();
                     break;
                 }
         }
 
-        Vector3Debugger.UpdatePosition(vectorId[0], a1);
-        Vector3Debugger.UpdatePosition(vectorId[1], b1);
-        Vector3Debugger.UpdatePosition(vectorId[2], c1);
+        Vector3Debugger.UpdatePosition(vectorId[0], a);
+        Vector3Debugger.UpdatePosition(vectorId[1], b);
+        Vector3Debugger.UpdatePosition(vectorId[2], c);
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + a1);
+        Gizmos.DrawLine(transform.position, transform.position + a);
 
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + b1);
+        Gizmos.DrawLine(transform.position, transform.position + b);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + c1);
+        Gizmos.DrawLine(transform.position, transform.position + c);
     }
 
-    public Vector3 Exercise1()
+    public void GetInspectorData()
     {
-        return a1 + b1;
+        a = new Vec3(A);
+        b = new Vec3(B);
+        c = new Vec3(C);
+        
     }
 
-    public Vector3 Exercise2()
+    public Vec3 Exercise1()
     {
-        return b1 - a1;
+        return a + b;
+    }
+
+    public Vec3 Exercise2()
+    {
+        return b - a;
     }
 
     //x*x y*y z*z
-    public Vector3 Exercise3()
+    public Vec3 Exercise3()
     {
-        Vector3 result = a1;
+        Vec3 result = a;
 
-        result.Scale(b1);
+        result.Scale(b);
 
         return result;
     }
 
     //producto cruz
-    public Vector3 Exercise4()
+    public Vec3 Exercise4()
     {
-        return Vector3.Cross(b1, a1);
+        return Vec3.Cross(b, a);
     }
 
-    public Vector3 Exercise5()
+    public Vec3 Exercise5()
     {
         elapsedTime += Time.deltaTime;
 
         float t = Mathf.Clamp01(elapsedTime / duration);
 
-        Vector3 result = Vector3.Lerp(a1, b1, t);
+        Vec3 result = Vec3.Lerp(a, b, t);
 
         transform.position = result;
 
@@ -183,64 +199,64 @@ public class MyExercises : MonoBehaviour
         return result;
     }
 
-    public Vector3 Exercise6()
+    public Vec3 Exercise6()
     {
-        return Vector3.Max(a1, b1);
+        return Vec3.Max(a, b);
     }
 
-    public Vector3 Exercise7()
+    public Vec3 Exercise7()
     {
-        return Vector3.Project(a1, b1);
+        return Vec3.Project(a, b);
     }
 
-    public Vector3 Exercise8()
+    public Vec3 Exercise8()
     {
         t = 0.5f;
 
-        Vector3 result = Vector3.Lerp(a1, b1, t);
+        Vec3 result = Vec3.Lerp(a, b, t);
         result.Normalize();
 
-        distance_A1B1 = Vector3.Distance(a1, b1);
+        distance_A1B1 = Vec3.Distance(a, b);
 
-        Vector3 scaledResult = result * distance_A1B1;
+        Vec3 scaledResult = result * distance_A1B1;
         resultMagnitude = scaledResult.magnitude;
 
         return scaledResult;
     }
 
-    public Vector3 Exercise9()
+    public Vec3 Exercise9()
     {
-        angle_A1_hisResult = Vector3.Angle(hisResult, a1);
-        angle_B1_hisResult = Vector3.Angle(hisResult, b1);
+        angle_A1_hisResult = Vec3.Angle(hisResult, a);
+        angle_B1_hisResult = Vec3.Angle(hisResult, b);
         hisResultMagnitude = hisResult.magnitude;
-        magnitude_A1 = a1.magnitude;
-        magnitude_B1 = b1.magnitude;
+        magnitude_A1 = a.magnitude;
+        magnitude_B1 = b.magnitude;
 
-        angle_A1B1 = Vector3.Angle(a1, b1);
+        angle_A1B1 = Vec3.Angle(a, b);
 
         resultingAngle = 180 - angle_A1B1;
 
-        Vector3 normalized_a1 = a1.normalized;
-        Vector3 normalized_b1 = b1.normalized;
+        Vec3 normalized_a1 = a.normalized;
+        Vec3 normalized_b1 = b.normalized;
 
-        Vector3 direccionPerpendicular = Vector3.Cross(normalized_a1, normalized_b1);
+        Vec3 direccionPerpendicular = Vec3.Cross(normalized_a1, normalized_b1);
 
         Quaternion rotation = Quaternion.AngleAxis(180 - resultingAngle * 2, direccionPerpendicular);
 
-        Vector3 result = rotation * normalized_a1;
+        Vec3 result = rotation * normalized_a1;
 
-        result *= a1.magnitude;
+        result *= a.magnitude;
 
-        lastAngle_a1 = Vector3.Angle(result, a1);
-        lastAngle_b1 = Vector3.Angle(result, b1);
+        lastAngle_a1 = Vec3.Angle(result, a);
+        lastAngle_b1 = Vec3.Angle(result, b);
         return result;
     }
 
-    public Vector3 Exercise10()
+    public Vec3 Exercise10()
     {
         duration = 10;
 
-        Vector3 result;
+        Vec3 result;
 
         if (elapsedTime < duration)
         {          
@@ -248,7 +264,7 @@ public class MyExercises : MonoBehaviour
 
             t = elapsedTime;
 
-            result = Vector3.LerpUnclamped(b1, a1, t);
+            result = Vec3.LerpUnclamped(b, a, t);
 
             transform.position = result;  
             
@@ -258,7 +274,7 @@ public class MyExercises : MonoBehaviour
         {
             elapsedTime = 0.0f;
            
-            return Vector3.zero;
+            return Vec3.Zero;
         }
     }
 }
