@@ -25,6 +25,12 @@ public class MyPlane : MonoBehaviour
         distance = -Vector3.Dot(normal, a);
     }
 
+    public MyPlane(Plane plane)
+    {
+        normal = plane.normal;
+        distance = plane.distance;
+    }
+
     public MyPlane flipped => new MyPlane(-normal, distance);
 
     public static MyPlane Translate(MyPlane plane, Vector3 translation)
@@ -56,6 +62,7 @@ public class MyPlane : MonoBehaviour
     public bool Raycast(Ray ray, out float enter)
     {
         float denom = Vector3.Dot(ray.direction, normal);
+
         if (Mathf.Approximately(denom, 0))
         {
             enter = 0;
