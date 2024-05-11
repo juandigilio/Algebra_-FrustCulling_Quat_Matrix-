@@ -226,30 +226,7 @@ public class MyExercises : MonoBehaviour
 
     public Vec3 Exercise9()
     {
-        angle_A1_hisResult = Vec3.Angle(hisResult, a);
-        angle_B1_hisResult = Vec3.Angle(hisResult, b);
-        hisResultMagnitude = hisResult.magnitude;
-        magnitude_A1 = a.magnitude;
-        magnitude_B1 = b.magnitude;
-
-        angle_A1B1 = Vec3.Angle(a, b);
-
-        resultingAngle = 180 - angle_A1B1;
-
-        Vec3 normalized_a1 = a.normalized;
-        Vec3 normalized_b1 = b.normalized;
-
-        Vec3 direccionPerpendicular = Vec3.Cross(normalized_a1, normalized_b1);
-
-        Quaternion rotation = Quaternion.AngleAxis(180 - resultingAngle * 2, direccionPerpendicular);
-
-        Vec3 result = rotation * normalized_a1;
-
-        result *= a.magnitude;
-
-        lastAngle_a1 = Vec3.Angle(result, a);
-        lastAngle_b1 = Vec3.Angle(result, b);
-        return result;
+        return Vec3.Reflect(a, b.normalized);
     }
 
     public Vec3 Exercise10()
