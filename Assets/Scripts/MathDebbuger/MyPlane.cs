@@ -1,7 +1,7 @@
 using UnityEngine;
 using CustomMath;
 
-public class MyPlane : MonoBehaviour
+public class MyPlane
 {
     public Vec3 normal;
     public float distance;

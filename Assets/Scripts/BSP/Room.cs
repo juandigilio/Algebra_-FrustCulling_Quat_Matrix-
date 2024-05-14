@@ -11,7 +11,7 @@ public class Room : MonoBehaviour
     [SerializeField] public List<GameObject> objects = new List<GameObject>();
     [SerializeField] public bool isVisible = false;
 
-    private List<Plane> planes = new List<Plane>();
+    private List<MyPlane> planes = new List<MyPlane>();
 
     private void Start()
     {
@@ -19,7 +19,7 @@ public class Room : MonoBehaviour
         {
             if (normal != null)
             {
-                planes.Add(new Plane(normal.forward, normal.position));
+                planes.Add(new MyPlane(normal.forward, normal.position));
             }
         }
     }

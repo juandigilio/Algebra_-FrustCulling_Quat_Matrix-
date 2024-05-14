@@ -100,14 +100,12 @@ public class Room_Detection : MonoBehaviour
                 if (actualMagnitude >= newMagnitude)
                 {
                     lineEnd = hit.point;
-                    Debug.Log("La linea colisiona.");
+                    //Debug.Log("La linea colisiona.");
                 }
             }
 
             nearPoint[i] = lineStart;
             farPoint[i] = lineEnd;
-            //Gizmos.color = Color.red;
-            //Gizmos.DrawLine(lineStart, lineEnd);
         }
     }
 
@@ -121,7 +119,7 @@ public class Room_Detection : MonoBehaviour
 
                 foreach (Transform normal in room.normals)
                 {
-                    Plane plane = new Plane(normal.forward, normal.position);
+                    MyPlane plane = new MyPlane(normal.forward, normal.position);
 
                     if (!plane.GetSide(mainCamera.transform.position))
                     {
@@ -132,7 +130,7 @@ public class Room_Detection : MonoBehaviour
 
                 if (room.isVisible)
                 {
-                    Debug.Log("La cámara está dentro de la habitación." + room);
+                    //Debug.Log("La cámara está dentro de la habitación." + room);
                 }
             }
             else

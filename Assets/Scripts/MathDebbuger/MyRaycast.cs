@@ -68,7 +68,7 @@ public static class MyRaycast
                     roomConection.room1.isVisible = true;
                     roomConection.room2.isVisible = true;
 
-                    Debug.LogWarning("Colliding with door.");
+                    //Debug.LogWarning("Colliding with door.");
                 }
             }
         }
