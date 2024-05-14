@@ -240,7 +240,6 @@ GameObject:
   m_Component:
   - component: {fileID: 53344076}
   - component: {fileID: 53344077}
-  - component: {fileID: 53344078}
   m_Layer: 0
   m_Name: Room (4)
   m_TagString: Untagged
@@ -291,20 +290,6 @@ MonoBehaviour:
   - {fileID: 395270632}
   - {fileID: 1736788299}
   isVisible: 0
---- !u!114 &53344078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 53344075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26fc8028e05f75a48b83e5c28f25fd57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  room: {fileID: 0}
-  mainCamera: {fileID: 2045413797}
 --- !u!1 &131117492
 GameObject:
   m_ObjectHideFlags: 0
@@ -3561,7 +3546,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1177410552}
   - component: {fileID: 1177410553}
-  - component: {fileID: 1177410554}
   m_Layer: 0
   m_Name: Room (3)
   m_TagString: Untagged
@@ -3612,20 +3596,6 @@ MonoBehaviour:
   - {fileID: 1532748097}
   - {fileID: 913747582}
   isVisible: 0
---- !u!114 &1177410554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1177410551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26fc8028e05f75a48b83e5c28f25fd57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  room: {fileID: 0}
-  mainCamera: {fileID: 2045413797}
 --- !u!1 &1184777881
 GameObject:
   m_ObjectHideFlags: 0
@@ -4989,7 +4959,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1802521002}
   - component: {fileID: 1802521003}
-  - component: {fileID: 1802521004}
   m_Layer: 0
   m_Name: Room (2)
   m_TagString: Untagged
@@ -5041,20 +5010,6 @@ MonoBehaviour:
   - {fileID: 1377430282}
   - {fileID: 1447844203}
   isVisible: 0
---- !u!114 &1802521004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1802521001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26fc8028e05f75a48b83e5c28f25fd57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  room: {fileID: 0}
-  mainCamera: {fileID: 2045413797}
 --- !u!1001 &1809676725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5555,7 +5510,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1969731266}
   - component: {fileID: 1969731267}
-  - component: {fileID: 1969731268}
   m_Layer: 0
   m_Name: Room (1)
   m_TagString: Untagged
@@ -5607,20 +5561,6 @@ MonoBehaviour:
   - {fileID: 1226791223}
   - {fileID: 382454807}
   isVisible: 0
---- !u!114 &1969731268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1969731265}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26fc8028e05f75a48b83e5c28f25fd57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  room: {fileID: 0}
-  mainCamera: {fileID: 2045413797}
 --- !u!1 &2045413795
 GameObject:
   m_ObjectHideFlags: 0
@@ -5635,6 +5575,7 @@ GameObject:
   - component: {fileID: 2045413800}
   - component: {fileID: 2045413801}
   - component: {fileID: 2045413799}
+  - component: {fileID: 2045413802}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5663,7 +5604,7 @@ Camera:
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
-  m_FOVAxisMode: 0
+  m_FOVAxisMode: 1
   m_Iso: 200
   m_ShutterSpeed: 0.005
   m_Aperture: 16
@@ -5682,7 +5623,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 20
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -5732,8 +5673,19 @@ MonoBehaviour:
   screenWidth: 0
   screenHeight: 0
   fov: 0
+  vFov: NaN
   farDist: 0
   nearDist: 0
+  nearCenter: {x: 11.4, y: 1, z: -64.7}
+  farCenter: {x: 11.4, y: 1, z: -64.7}
+  farUpRightV: {x: NaN, y: NaN, z: NaN}
+  farUpLeftV: {x: NaN, y: NaN, z: NaN}
+  farDownRightV: {x: NaN, y: NaN, z: NaN}
+  farDownLeftV: {x: NaN, y: NaN, z: NaN}
+  nearUpRightV: {x: NaN, y: NaN, z: NaN}
+  nearUpLeftV: {x: NaN, y: NaN, z: NaN}
+  nearDownRightV: {x: NaN, y: NaN, z: NaN}
+  nearDownLeftV: {x: NaN, y: NaN, z: NaN}
 --- !u!114 &2045413800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5765,7 +5717,42 @@ MonoBehaviour:
   - {fileID: 1802521003}
   - {fileID: 1177410553}
   - {fileID: 53344077}
-  frustum: {fileID: 0}
+  frustum: {fileID: 2045413799}
+--- !u!114 &2045413802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045413795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26fc8028e05f75a48b83e5c28f25fd57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 2045413797}
+  frustum: {fileID: 2045413799}
+  objectCulling: {fileID: 2045413801}
+  initalAngle: -0.20833333
+  cameraFov: 144
+  otherFov: 0
+  planes:
+  - {fileID: 1715525122}
+  - {fileID: 20871319}
+  - {fileID: 643186333}
+  - {fileID: 1184777885}
+  - {fileID: 834323586}
+  - {fileID: 207975777}
+  - {fileID: 539496479}
+  - {fileID: 212823947}
+  - {fileID: 808561265}
+  - {fileID: 271030471}
+  - {fileID: 620832080}
+  - {fileID: 1751812369}
+  - {fileID: 453473856}
+  - {fileID: 226955929}
+  - {fileID: 257445855}
+  - {fileID: 743172775}
 --- !u!1 &2059685809
 GameObject:
   m_ObjectHideFlags: 0

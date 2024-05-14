@@ -8,7 +8,6 @@ public class Room : MonoBehaviour
     [SerializeField] public int room;
     [SerializeField] public List<Transform> normals = new List<Transform>();
     [SerializeField] public List<GameObject> objects = new List<GameObject>();
-    //[SerializeField] public List<Plane> walls = new List<Plane>();
     [SerializeField] public bool isVisible = false;
 
     private List<Plane> planes = new List<Plane>();

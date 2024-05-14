@@ -110,14 +110,14 @@ namespace CustomMath
             return v3 * scalar;
         }
 
-        public static Vec3 operator *(Quaternion rotation, Vec3 v3)
-        {
-            Quaternion vQuat = new Quaternion(v3.x, v3.y, v3.z, 0);
+        //public static Vec3 operator *(Quaternion rotation, Vec3 v3)
+        //{
+        //    Quaternion vQuat = new Quaternion(v3.x, v3.y, v3.z, 0);
 
-            Quaternion result= rotation * vQuat * Quaternion.Inverse(rotation);
+        //    Quaternion result= rotation * vQuat * Quaternion.Inverse(rotation);
 
-            return new Vec3(result.x, result.y, result.z);
-        }
+        //    return new Vec3(result.x, result.y, result.z);
+        //}
 
         public static Vec3 operator /(Vec3 v3, float scalar)
         {
