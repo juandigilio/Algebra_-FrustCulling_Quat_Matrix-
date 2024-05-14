@@ -31,23 +31,23 @@ public class Frustum : MonoBehaviour
     private float aspectRatio;
 
     public float fov;
-    private float vFov;
+    public float vFov;
 
     public float farDist;
     public float nearDist;
 
-    private Vector3 nearCenter;
-    private Vector3 farCenter;
+    public Vector3 nearCenter;
+    public Vector3 farCenter;
 
-    private Vector3 farUpRightV;
-    private Vector3 farUpLeftV;
-    private Vector3 farDownRightV;
-    private Vector3 farDownLeftV;
+    public Vector3 farUpRightV;
+    public Vector3 farUpLeftV;
+    public Vector3 farDownRightV;
+    public Vector3 farDownLeftV;
 
-    private Vector3 nearUpRightV;
-    private Vector3 nearUpLeftV;
-    private Vector3 nearDownRightV;
-    private Vector3 nearDownLeftV;
+    public Vector3 nearUpRightV;
+    public Vector3 nearUpLeftV;
+    public Vector3 nearDownRightV;
+    public Vector3 nearDownLeftV;
 
 
     private void Awake()
@@ -68,7 +68,7 @@ public class Frustum : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        UpdatePoints();
+        //UpdatePoints();
         Gizmos.color = Color.green;
 
         Gizmos.DrawLine(nearUpRightV, farUpRightV);
