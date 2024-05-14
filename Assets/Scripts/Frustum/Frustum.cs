@@ -1,22 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Frustum : MonoBehaviour 
+public class FrustumPlane
 {
-    [SerializeField]
-    private Camera mainCamera;
+    public Vector3 vertexA;
+    public Vector3 vertexB;
+    public Vector3 vertexC;
 
-    [SerializeField] 
-    private List<GameObject> objectsToCull;
+    public Vector3 normal;
+}
 
-    public class FrustumPlane
-    {
-        public Vector3 vertexA;
-        public Vector3 vertexB;
-        public Vector3 vertexC;
-
-        public Vector3 normal;
-    }
+public class Frustum : MonoBehaviour
+{
+    [SerializeField] private Camera mainCamera;
 
     public FrustumPlane nearPlane = new FrustumPlane();
     public FrustumPlane farPlane = new FrustumPlane();
@@ -54,157 +50,44 @@ public class Frustum : MonoBehaviour
     private Vector3 nearDownLeftV;
 
 
-
-    private bool IsAnyVertexInFrustum(Vector3[] vertices)
-    {
-        foreach (Vector3 vertex in vertices)
-        {
-            bool isInsideFrustum = true;
-
-            foreach (FrustumPlane plane in planes)
-            {
-                if (PlanePointDistance(plane, vertex) < 0.0f)
-                {
-                    isInsideFrustum = false;
-                    break;
-                }
-            }
-
-            if (isInsideFrustum)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    Bounds GetMeshBounds(Mesh mesh)
-    {
-        Vector3[] vertices = mesh.vertices;
-
-        if (vertices.Length == 0)
-        {
-            Debug.LogWarning("The mesh has no vertices!");
-            return new Bounds(Vector3.zero, Vector3.zero);
-        }
-
-        Vector3 min = vertices[0];
-        Vector3 max = vertices[0];
-
-        for (int i = 1; i < vertices.Length; i++)
-        {
-            min = Vector3.Min(min, vertices[i]);
-            max = Vector3.Max(max, vertices[i]);
-        }
-
-        Bounds bounds = new Bounds((max + min) / 2f, max - min);
-        return bounds;
-    }
-
-    /// <summary>
-    /// Devuelve los vertices de la bounding box de una mesh transformados.
-    /// </summary>
-    /// <param name="mesh"></param>
-    /// <param name="objTransform"></param>
-    /// <returns></returns>
-    Vector3[] GetMeshBoundsVertex(Mesh mesh, Transform objTransform)
-    {
-        Bounds bounds = GetMeshBounds(mesh);
-        Vector3 center = bounds.center;
-        Vector3 extents = bounds.extents;
-
-        // Nuestro frustum trabaja con vertices Vector3, por lo tanto debemos pasar nuestra variable Bounds a 8 vertices.
-        Vector3[] corners = new Vector3[8];
-
-        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);
-        corners[1] = center + new Vector3(extents.x, -extents.y, -extents.z);
-        corners[2] = center + new Vector3(-extents.x, -extents.y, extents.z);
-        corners[3] = center + new Vector3(extents.x, -extents.y, extents.z);
-        corners[4] = center + new Vector3(-extents.x, extents.y, -extents.z);
-        corners[5] = center + new Vector3(extents.x, extents.y, -extents.z);
-        corners[6] = center + new Vector3(-extents.x, extents.y, extents.z);
-        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);
-
-        // Ya tenemos todas los vertices de la caja, pero tambien debemos transformar la posicion de estos a su posicion en el mundo.
-        for (int i = 0; i < corners.Length; i++)
-        {
-            corners[i] = objTransform.TransformPoint(corners[i]);
-        }
-
-        return corners;
-    }
-
-    /// <summary>
-    /// Transforma todos los vertices de una mesh y los devuelve en un array.
-    /// </summary>
-    /// <param name="mesh"></param>
-    /// <param name="objTransform"></param>
-    /// <returns></returns>
-    Vector3[] GetMeshVertex(Mesh mesh, Transform objTransform)
-    {
-        Vector3[] meshVertex = new Vector3[mesh.vertexCount];
-
-        for (int i = 0; i < mesh.vertices.Length; i++)
-        {
-            meshVertex[i] = objTransform.TransformPoint(mesh.vertices[i]);
-        }
-
-        return meshVertex;
-    }
-
-
-    private void CullObjects()
-    {
-        foreach (GameObject obj in objectsToCull)
-        {
-            MeshFilter mf = obj.GetComponent<MeshFilter>();
-            if (!mf)
-            {
-                Debug.LogWarning("Object " + obj.name + " does not have a mesh.");
-                continue;
-            }
-
-            MeshRenderer mr = obj.GetComponent<MeshRenderer>();
-            if (!mr)
-            {
-                Debug.LogWarning("Object " + obj.name + " does not have a mesh renderer.");
-                continue;
-            }
-
-            Vector3[] boundingBoxVertex = GetMeshBoundsVertex(mf.mesh, obj.transform);
-
-            if (IsAnyVertexInFrustum(boundingBoxVertex))
-            {
-                Vector3[] meshVertex = GetMeshVertex(mf.mesh, obj.transform);
-                if (IsAnyVertexInFrustum(meshVertex))
-                {
-                    mr.enabled = true;
-                }
-                else
-                {
-                    mr.enabled = false;
-                }
-            }
-            else
-            {
-                mr.enabled = false;
-            }
-        }
-    }
-
     private void Awake()
     {
         mainCamera = GetComponent<Camera>();
-        CreateNewFrutum();
+        GetCameraFrustum();
         AddVerticesToList();
         AddPlanesToList();
-
     }
 
-    //FrustumGetter
+    private void Update()
+    {
+        GetCameraFrustum();
+        UpdatePoints();
+        UpdateVertex();
+        UpdatePlanes();
+    }
 
-    void CreateNewFrutum()
+    private void OnDrawGizmos()
+    {
+        UpdatePoints();
+        Gizmos.color = Color.green;
+
+        Gizmos.DrawLine(nearUpRightV, farUpRightV);
+        Gizmos.DrawLine(nearUpLeftV, farUpLeftV);
+        Gizmos.DrawLine(farUpRightV, farUpLeftV);
+        Gizmos.DrawLine(nearUpRightV, nearUpLeftV);
+
+        Gizmos.DrawLine(nearDownRightV, farDownRightV);
+        Gizmos.DrawLine(nearDownLeftV, farDownLeftV);
+        Gizmos.DrawLine(farDownRightV, farDownLeftV);
+        Gizmos.DrawLine(nearDownRightV, nearDownLeftV);
+
+        Gizmos.DrawLine(nearDownRightV, nearUpRightV);
+        Gizmos.DrawLine(nearDownLeftV, nearUpLeftV);
+        Gizmos.DrawLine(farDownRightV, farUpRightV);
+        Gizmos.DrawLine(farDownLeftV, farUpLeftV);
+    }
+
+    private void GetCameraFrustum()
     {
         nearDist = mainCamera.nearClipPlane;
         farDist = mainCamera.farClipPlane;
@@ -215,7 +98,40 @@ public class Frustum : MonoBehaviour
         vFov = fov / aspectRatio;
     }
 
-    void UpdatePoints()
+    private void AddVerticesToList()
+    {
+        //Triangulo superior
+        vertexList.Add(transform.position);
+        vertexList.Add(farUpRightV);
+        vertexList.Add(farUpLeftV);
+
+        //Triangulo derecho
+        vertexList.Add(transform.position);
+        vertexList.Add(farUpRightV);
+        vertexList.Add(farDownRightV);
+
+        //Triangulo inferior
+        vertexList.Add(transform.position);
+        vertexList.Add(farDownRightV);
+        vertexList.Add(farDownLeftV);
+
+        //Triangulo izquierdo
+        vertexList.Add(transform.position);
+        vertexList.Add(farUpLeftV);
+        vertexList.Add(farDownLeftV);
+
+        //Triangulo del far plane
+        vertexList.Add(farUpRightV);
+        vertexList.Add(farDownRightV);
+        vertexList.Add(farDownLeftV);
+
+        //Triangulo del near plane
+        vertexList.Add(nearUpRightV);
+        vertexList.Add(nearDownRightV);
+        vertexList.Add(nearDownLeftV);
+    }
+
+    private void UpdatePoints()
     {
         aspectRatio = (float)screenWidth / (float)screenHeight;
 
@@ -271,40 +187,18 @@ public class Frustum : MonoBehaviour
         farDownRightV.z = farCenter.z - (up.z * farPlaneHeight / 2) + (right.z * farPlaneWidth / 2);
     }
 
-    void AddVerticesToList()
+    private void AddPlanesToList()
     {
-        //Triangulo superior
-        vertexList.Add(transform.position);
-        vertexList.Add(farUpRightV);
-        vertexList.Add(farUpLeftV);
+        planes.Add(upPlane);
+        planes.Add(rightPlane);
+        planes.Add(downPlane);
+        planes.Add(leftPlane);
 
-        //Triangulo derecho
-        vertexList.Add(transform.position);
-        vertexList.Add(farUpRightV);
-        vertexList.Add(farDownRightV);
-
-        //Triangulo inferior
-        vertexList.Add(transform.position);
-        vertexList.Add(farDownRightV);
-        vertexList.Add(farDownLeftV);
-
-        //Triangulo izquierdo
-        vertexList.Add(transform.position);
-        vertexList.Add(farUpLeftV);
-        vertexList.Add(farDownLeftV);
-
-        //Triangulo del far plane
-        vertexList.Add(farUpRightV);
-        vertexList.Add(farDownRightV);
-        vertexList.Add(farDownLeftV);
-
-        //Triangulo del near plane
-        vertexList.Add(nearUpRightV);
-        vertexList.Add(nearDownRightV);
-        vertexList.Add(nearDownLeftV);
+        planes.Add(farPlane);
+        planes.Add(nearPlane);
     }
 
-    void UpdateVertex()
+    private void UpdateVertex()
     {
         //Update triangulo superior
         vertexList[0] = nearUpRightV;
@@ -337,18 +231,7 @@ public class Frustum : MonoBehaviour
         vertexList[17] = nearDownLeftV;
     }
 
-    void AddPlanesToList()
-    {
-        planes.Add(upPlane);
-        planes.Add(rightPlane);
-        planes.Add(downPlane);
-        planes.Add(leftPlane);
-
-        planes.Add(farPlane);
-        planes.Add(nearPlane);
-    }
-
-    void UpdatePlanes()
+    private void UpdatePlanes()
     {
         Vector3 point = transform.position + transform.forward * ((farDist - nearDist) / 2 + nearDist); //Punto en el centro de la figura
 
@@ -361,56 +244,25 @@ public class Frustum : MonoBehaviour
             Vector3 vectorAB = planes[i].vertexB - planes[i].vertexA;
             Vector3 vectorAC = planes[i].vertexC - planes[i].vertexA;
 
-            Vector3 normalPlane = Vector3.Cross(vectorAB, vectorAC).normalized; //Calcula la normal con producto cruz y la normaliza
+            Vector3 normalPlane = Vector3.Cross(vectorAB, vectorAC).normalized;
 
-            //Verifica la orientación y la cambia en caso de que no sea hacia el centro
             Vector3 vectorToPlane = point - planes[i].vertexA;
-            float distanceToPlane = Vector3.Dot(vectorToPlane, normalPlane); //Si > 0 apuntan hacia el mismo lado (el centro), sino no
 
-            if (distanceToPlane > 0.0f) //Si es mayor que cero mantengo la dirección porque esta hacia el centro
+            float distanceToPlane = Vector3.Dot(vectorToPlane, normalPlane);
+
+            if (distanceToPlane > 0.0f)
             {
                 planes[i].normal = normalPlane;
             }
-            else //Si apunta hacia diferente lado la multiplico por -1 para invertir su dirección porque significa que estaba hacia afuera
+            else
             {
                 planes[i].normal = normalPlane * -1;
             }
         }
     }
 
-    float PlanePointDistance(FrustumPlane plane, Vector3 pointToCheck)
+    public List<FrustumPlane> GetFrustum()
     {
-        float dist = Vector3.Dot(plane.normal, (pointToCheck - plane.vertexA));
-        return dist;
-    }
-
-    void OnDrawGizmos()
-    {
-        UpdatePoints();  
-        Gizmos.color = Color.green;
-
-        Gizmos.DrawLine(nearUpRightV, farUpRightV);
-        Gizmos.DrawLine(nearUpLeftV, farUpLeftV);
-        Gizmos.DrawLine(farUpRightV, farUpLeftV);
-        Gizmos.DrawLine(nearUpRightV, nearUpLeftV);
-
-        Gizmos.DrawLine(nearDownRightV, farDownRightV);
-        Gizmos.DrawLine(nearDownLeftV, farDownLeftV);
-        Gizmos.DrawLine(farDownRightV, farDownLeftV);
-        Gizmos.DrawLine(nearDownRightV, nearDownLeftV);
-
-        Gizmos.DrawLine(nearDownRightV, nearUpRightV);
-        Gizmos.DrawLine(nearDownLeftV, nearUpLeftV);
-        Gizmos.DrawLine(farDownRightV, farUpRightV);
-        Gizmos.DrawLine(farDownLeftV, farUpLeftV);
-    }
-
-    private void Update()
-    {
-        UpdatePoints();
-        UpdateVertex();
-        UpdatePlanes();
-
-        CullObjects();
+        return planes;
     }
 }
