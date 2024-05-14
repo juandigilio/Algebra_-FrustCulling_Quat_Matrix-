@@ -21,7 +21,12 @@ public class ObjectCulling : MonoBehaviour
         CullObjects();
     }
 
-    float PlanePointDistance(FrustumPlane plane, Vector3 pointToCheck)
+    public List<Room> GetRooms()
+    {
+        return rooms;
+    }
+
+    private float PlanePointDistance(FrustumPlane plane, Vector3 pointToCheck)
     {
         float dist = Vector3.Dot(plane.normal, (pointToCheck - plane.vertexA));
         return dist;
@@ -51,7 +56,7 @@ public class ObjectCulling : MonoBehaviour
         return false;
     }
 
-    Bounds GetMeshBounds(Mesh mesh)
+    private Bounds GetMeshBounds(Mesh mesh)
     {
         Vector3[] vertices = mesh.vertices;
 
@@ -80,7 +85,7 @@ public class ObjectCulling : MonoBehaviour
     /// <param name="mesh"></param>
     /// <param name="objTransform"></param>
     /// <returns></returns>
-    Vector3[] GetMeshBoundsVertex(Mesh mesh, Transform objTransform)
+    private Vector3[] GetMeshBoundsVertex(Mesh mesh, Transform objTransform)
     {
         Bounds bounds = GetMeshBounds(mesh);
         Vector3 center = bounds.center;
@@ -113,7 +118,7 @@ public class ObjectCulling : MonoBehaviour
     /// <param name="mesh"></param>
     /// <param name="objTransform"></param>
     /// <returns></returns>
-    Vector3[] GetMeshVertex(Mesh mesh, Transform objTransform)
+    private Vector3[] GetMeshVertex(Mesh mesh, Transform objTransform)
     {
         Vector3[] meshVertex = new Vector3[mesh.vertexCount];
 
