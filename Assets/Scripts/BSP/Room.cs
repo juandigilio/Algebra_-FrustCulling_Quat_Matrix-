@@ -6,15 +6,21 @@ using UnityEngine.UIElements;
 public class Room : MonoBehaviour
 {
     [SerializeField] public int room;
-    [SerializeField] public List<Transform> normals;
+    [SerializeField] public List<Transform> normals = new List<Transform>();
+    [SerializeField] public List<GameObject> objects = new List<GameObject>();
+    //[SerializeField] public List<Plane> walls = new List<Plane>();
+    [SerializeField] public bool isVisible = false;
 
-    private List<Plane> planes;
+    private List<Plane> planes = new List<Plane>();
 
     private void Start()
     {
         foreach (Transform normal in normals)
         {
-            planes.Add(new Plane(normal.forward, normal.position));
+            if (normal != null)
+            {
+                planes.Add(new Plane(normal.forward, normal.position));
+            }
         }
     }
 
@@ -23,6 +29,15 @@ public class Room : MonoBehaviour
         foreach (Transform normal in normals)
         {
             DrawPlane(normal.position, normal.forward);
+        }
+
+        if (isVisible)
+        {
+            foreach (GameObject obj in objects)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(obj.transform.position, 1.0f);
+            }
         }
     }
 
