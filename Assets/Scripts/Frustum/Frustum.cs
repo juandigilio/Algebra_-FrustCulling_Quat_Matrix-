@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using CustomMath;
 
 public class FrustumPlane
 {
-    public Vector3 vertexA;
-    public Vector3 vertexB;
-    public Vector3 vertexC;
+    public Vec3 vertexA;
+    public Vec3 vertexB;
+    public Vec3 vertexC;
 
-    public Vector3 normal;
+    public Vec3 normal;
 }
 
 public class Frustum : MonoBehaviour
@@ -22,7 +23,7 @@ public class Frustum : MonoBehaviour
     public FrustumPlane upPlane = new FrustumPlane();
     public FrustumPlane downPlane = new FrustumPlane();
 
-    private List<Vector3> vertexList = new List<Vector3>();
+    private List<Vec3> vertexList = new List<Vec3>();
 
     private List<FrustumPlane> planes = new List<FrustumPlane>();
 
@@ -36,18 +37,18 @@ public class Frustum : MonoBehaviour
     public float farDist;
     public float nearDist;
 
-    public Vector3 nearCenter;
-    public Vector3 farCenter;
+    public Vec3 nearCenter;
+    public Vec3 farCenter;
 
-    public Vector3 farUpRightV;
-    public Vector3 farUpLeftV;
-    public Vector3 farDownRightV;
-    public Vector3 farDownLeftV;
+    public Vec3 farUpRightV;
+    public Vec3 farUpLeftV;
+    public Vec3 farDownRightV;
+    public Vec3 farDownLeftV;
 
-    public Vector3 nearUpRightV;
-    public Vector3 nearUpLeftV;
-    public Vector3 nearDownRightV;
-    public Vector3 nearDownLeftV;
+    public Vec3 nearUpRightV;
+    public Vec3 nearUpLeftV;
+    public Vec3 nearDownRightV;
+    public Vec3 nearDownLeftV;
 
 
     private void Awake()
@@ -137,8 +138,8 @@ public class Frustum : MonoBehaviour
 
         vFov = fov / aspectRatio;
 
-        Vector3 up = transform.up;
-        Vector3 right = transform.right;
+        Vec3 up = transform.up;
+        Vec3 right = transform.right;
 
         nearCenter = transform.position + transform.forward * nearDist;
         farCenter = transform.position + transform.forward * farDist;
@@ -233,7 +234,7 @@ public class Frustum : MonoBehaviour
 
     private void UpdatePlanes()
     {
-        Vector3 point = transform.position + transform.forward * ((farDist - nearDist) / 2 + nearDist); //Punto en el centro de la figura
+        Vec3 point = transform.position + transform.forward * ((farDist - nearDist) / 2 + nearDist); //Punto en el centro de la figura
 
         for (int i = 0; i < planes.Count; i++)
         {
@@ -241,14 +242,14 @@ public class Frustum : MonoBehaviour
             planes[i].vertexB = vertexList[i * 3 + 1];
             planes[i].vertexC = vertexList[i * 3 + 2];
 
-            Vector3 vectorAB = planes[i].vertexB - planes[i].vertexA;
-            Vector3 vectorAC = planes[i].vertexC - planes[i].vertexA;
+            Vec3 vectorAB = planes[i].vertexB - planes[i].vertexA;
+            Vec3 vectorAC = planes[i].vertexC - planes[i].vertexA;
 
-            Vector3 normalPlane = Vector3.Cross(vectorAB, vectorAC).normalized;
+            Vec3 normalPlane = Vec3.Cross(vectorAB, vectorAC).normalized;
 
-            Vector3 vectorToPlane = point - planes[i].vertexA;
+            Vec3 vectorToPlane = point - planes[i].vertexA;
 
-            float distanceToPlane = Vector3.Dot(vectorToPlane, normalPlane);
+            float distanceToPlane = Vec3.Dot(vectorToPlane, normalPlane);
 
             if (distanceToPlane > 0.0f)
             {

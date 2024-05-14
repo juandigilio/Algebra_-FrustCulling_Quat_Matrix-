@@ -110,15 +110,6 @@ namespace CustomMath
             return v3 * scalar;
         }
 
-        //public static Vec3 operator *(Quaternion rotation, Vec3 v3)
-        //{
-        //    Quaternion vQuat = new Quaternion(v3.x, v3.y, v3.z, 0);
-
-        //    Quaternion result= rotation * vQuat * Quaternion.Inverse(rotation);
-
-        //    return new Vec3(result.x, result.y, result.z);
-        //}
-
         public static Vec3 operator /(Vec3 v3, float scalar)
         {
             return new Vec3(v3.x / scalar, v3.y / scalar, v3.z / scalar);
@@ -127,7 +118,13 @@ namespace CustomMath
         public static implicit operator Vector3(Vec3 v3)
         {
             return new Vector3(v3.x, v3.y, v3.z);
-            
+
+        }
+
+        public static implicit operator Vec3(Vector3 v3)
+        {
+            return new Vec3(v3.x, v3.y, v3.z);
+
         }
 
         public static implicit operator Vector2(Vec3 v2)
@@ -207,7 +204,7 @@ namespace CustomMath
             return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
         }
 
-        public static Vec3 Project(Vec3 vector, Vec3 onNormal) 
+        public static Vec3 Project(Vec3 vector, Vec3 onNormal)
         {
             float sqrMag = SqrMagnitude(onNormal);
 
@@ -219,7 +216,7 @@ namespace CustomMath
             return onNormal * (dot / sqrMag);
         }
 
-        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal) 
+        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal)
         {
             return inDirection - 2f * Dot(inDirection, inNormal) * inNormal;
         }
@@ -248,6 +245,11 @@ namespace CustomMath
                 y /= magnitude;
                 z /= magnitude;
             }
+        }
+
+        public Vector3 ToVector3()
+        {
+            return new Vector3(x, y, z);
         }
         #endregion
 

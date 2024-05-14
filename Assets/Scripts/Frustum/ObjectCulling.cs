@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomMath;
 
 [System.Serializable]
 public class ObjectCulling : MonoBehaviour
@@ -26,15 +27,15 @@ public class ObjectCulling : MonoBehaviour
         return rooms;
     }
 
-    private float PlanePointDistance(FrustumPlane plane, Vector3 pointToCheck)
+    private float PlanePointDistance(FrustumPlane plane, Vec3 pointToCheck)
     {
-        float dist = Vector3.Dot(plane.normal, (pointToCheck - plane.vertexA));
+        float dist = Vec3.Dot(plane.normal, (pointToCheck - plane.vertexA));
         return dist;
     }
 
-    private bool IsAnyVertexInFrustum(Vector3[] vertices)
+    private bool IsAnyVertexInFrustum(Vec3[] vertices)
     {
-        foreach (Vector3 vertex in vertices)
+        foreach (Vec3 vertex in vertices)
         {
             bool isInsideFrustum = true;
 
@@ -63,16 +64,16 @@ public class ObjectCulling : MonoBehaviour
         if (vertices.Length == 0)
         {
             Debug.LogWarning("The mesh has no vertices!");
-            return new Bounds(Vector3.zero, Vector3.zero);
+            return new Bounds(Vec3.Zero, Vec3.Zero);
         }
 
-        Vector3 min = vertices[0];
-        Vector3 max = vertices[0];
+        Vec3 min = vertices[0];
+        Vec3 max = vertices[0];
 
         for (int i = 1; i < vertices.Length; i++)
         {
-            min = Vector3.Min(min, vertices[i]);
-            max = Vector3.Max(max, vertices[i]);
+            min = Vec3.Min(min, vertices[i]);
+            max = Vec3.Max(max, vertices[i]);
         }
 
         Bounds bounds = new Bounds((max + min) / 2f, max - min);
@@ -85,23 +86,23 @@ public class ObjectCulling : MonoBehaviour
     /// <param name="mesh"></param>
     /// <param name="objTransform"></param>
     /// <returns></returns>
-    private Vector3[] GetMeshBoundsVertex(Mesh mesh, Transform objTransform)
+    private Vec3[] GetMeshBoundsVertex(Mesh mesh, Transform objTransform)
     {
         Bounds bounds = GetMeshBounds(mesh);
-        Vector3 center = bounds.center;
-        Vector3 extents = bounds.extents;
+        Vec3 center = bounds.center;
+        Vec3 extents = bounds.extents;
 
-        // Nuestro frustum trabaja con vertices Vector3, por lo tanto debemos pasar nuestra variable Bounds a 8 vertices.
-        Vector3[] corners = new Vector3[8];
+        // Nuestro frustum trabaja con vertices Vec3, por lo tanto debemos pasar nuestra variable Bounds a 8 vertices.
+        Vec3[] corners = new Vec3[8];
 
-        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);
-        corners[1] = center + new Vector3(extents.x, -extents.y, -extents.z);
-        corners[2] = center + new Vector3(-extents.x, -extents.y, extents.z);
-        corners[3] = center + new Vector3(extents.x, -extents.y, extents.z);
-        corners[4] = center + new Vector3(-extents.x, extents.y, -extents.z);
-        corners[5] = center + new Vector3(extents.x, extents.y, -extents.z);
-        corners[6] = center + new Vector3(-extents.x, extents.y, extents.z);
-        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);
+        corners[0] = center + new Vec3(-extents.x, -extents.y, -extents.z);
+        corners[1] = center + new Vec3(extents.x, -extents.y, -extents.z);
+        corners[2] = center + new Vec3(-extents.x, -extents.y, extents.z);
+        corners[3] = center + new Vec3(extents.x, -extents.y, extents.z);
+        corners[4] = center + new Vec3(-extents.x, extents.y, -extents.z);
+        corners[5] = center + new Vec3(extents.x, extents.y, -extents.z);
+        corners[6] = center + new Vec3(-extents.x, extents.y, extents.z);
+        corners[7] = center + new Vec3(extents.x, extents.y, extents.z);
 
         // Ya tenemos todas los vertices de la caja, pero tambien debemos transformar la posicion de estos a su posicion en el mundo.
         for (int i = 0; i < corners.Length; i++)
@@ -118,9 +119,9 @@ public class ObjectCulling : MonoBehaviour
     /// <param name="mesh"></param>
     /// <param name="objTransform"></param>
     /// <returns></returns>
-    private Vector3[] GetMeshVertex(Mesh mesh, Transform objTransform)
+    private Vec3[] GetMeshVertex(Mesh mesh, Transform objTransform)
     {
-        Vector3[] meshVertex = new Vector3[mesh.vertexCount];
+        Vec3[] meshVertex = new Vec3[mesh.vertexCount];
 
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
@@ -152,11 +153,11 @@ public class ObjectCulling : MonoBehaviour
 
                 if (room.isVisible)
                 {
-                    Vector3[] boundingBoxVertex = GetMeshBoundsVertex(mf.mesh, obj.transform);
+                    Vec3[] boundingBoxVertex = GetMeshBoundsVertex(mf.mesh, obj.transform);
 
                     if (IsAnyVertexInFrustum(boundingBoxVertex))
                     {
-                        Vector3[] meshVertex = GetMeshVertex(mf.mesh, obj.transform);
+                        Vec3[] meshVertex = GetMeshVertex(mf.mesh, obj.transform);
                         if (IsAnyVertexInFrustum(meshVertex))
                         {
                             mr.enabled = true;

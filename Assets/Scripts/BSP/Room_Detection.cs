@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-//using CustomMath;
+using CustomMath;
 
 [System.Serializable]
 public class Room_Detection : MonoBehaviour
@@ -13,21 +13,25 @@ public class Room_Detection : MonoBehaviour
     [SerializeField] public float otherFov;
 
     public List<Transform> planes;
+    public List<GameObject> doors;
 
     private List<Room> rooms = new List<Room>();
 
-    List<Vector3> nearPoint = new List<Vector3>();
-    List<Vector3> farPoint = new List<Vector3>();
-    private Vector3 nearLeftPoint;
-    private Vector3 farLeftPoint;
-    private Vector3 nearRightPoint;
-    private Vector3 farRightPoint;
+    List<Vec3> nearPoint = new List<Vec3>();
+    List<Vec3> farPoint = new List<Vec3>();
+    private Vec3 nearLeftPoint;
+    private Vec3 farLeftPoint;
+    private Vec3 nearRightPoint;
+    private Vec3 farRightPoint;
+    private int totalLines;
 
     private void Awake()
     {
         mainCamera = GetComponent<Camera>();
         frustum = GetComponent<Frustum>();
         objectCulling = GetComponent<ObjectCulling>();
+
+        totalLines = 16; 
     }
 
     private void Start()
@@ -37,23 +41,28 @@ public class Room_Detection : MonoBehaviour
     private void Update()
     {
         CheckCameraPosition();
+        CheckRaysCollision();
     }
 
     private void OnDrawGizmos()
     {
-        DrawRays();
+        for (int i = 0; i < totalLines; i++)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(nearPoint[i], farPoint[i]);
+        }
     }
 
-    private void GetRaysPoints(int totalLines)
+    private void GetRaysPoints()
     {
-        List<Vector3> newNear = new List<Vector3>();
-        List<Vector3> newFar = new List<Vector3>();
+        List<Vec3> newNear = new List<Vec3>();
+        List<Vec3> newFar = new List<Vec3>();
 
-        nearLeftPoint = Vector3.Lerp(frustum.nearUpLeftV, frustum.nearDownLeftV, 0.5f);
-        farLeftPoint = Vector3.Lerp(frustum.farUpLeftV, frustum.farDownLeftV, 0.5f);
+        nearLeftPoint = Vec3.Lerp(frustum.nearUpLeftV, frustum.nearDownLeftV, 0.5f);
+        farLeftPoint = Vec3.Lerp(frustum.farUpLeftV, frustum.farDownLeftV, 0.5f);
 
-        nearRightPoint = Vector3.Lerp(frustum.nearUpRightV, frustum.nearDownRightV, 0.5f);
-        farRightPoint = Vector3.Lerp(frustum.farUpRightV, frustum.farDownRightV, 0.5f);
+        nearRightPoint = Vec3.Lerp(frustum.nearUpRightV, frustum.nearDownRightV, 0.5f);
+        farRightPoint = Vec3.Lerp(frustum.farUpRightV, frustum.farDownRightV, 0.5f);
 
         newNear.Add(nearLeftPoint);
         newFar.Add(farLeftPoint);
@@ -62,33 +71,31 @@ public class Room_Detection : MonoBehaviour
         {
             float t = (1.0f / totalLines) * ((float)i + 1.0f);
 
-            newNear.Add(Vector3.Lerp(nearLeftPoint, nearRightPoint, t));
-            newFar.Add(Vector3.Lerp(farLeftPoint, farRightPoint, t));
+            newNear.Add(Vec3.Lerp(nearLeftPoint, nearRightPoint, t));
+            newFar.Add(Vec3.Lerp(farLeftPoint, farRightPoint, t));
         }
 
         nearPoint = newNear;
         farPoint = newFar;
     }
 
-    private void DrawRays()
+    private void CheckRaysCollision()
     {
-        int totalLines = 16;
-
-        GetRaysPoints(totalLines);
+        GetRaysPoints();
 
         for (int i = 0; i < totalLines; i++)
         {
-            Vector3 lineStart = nearPoint[i];
-            Vector3 lineEnd = farPoint[i];
+            Vec3 lineStart = nearPoint[i];
+            Vec3 lineEnd = farPoint[i];
 
             MyRaycastHit hit = new MyRaycastHit();
 
-            if (MyRaycast.CastRay(lineStart, (lineEnd - lineStart).normalized, out hit, planes))
-            {
-                Vector3 newFar = hit.point;
+            int room_ID = 0;
 
-                float actualMagnitude = Vector3.Distance(nearPoint[i], farPoint[i]);
-                float newMagnitude = Vector3.Distance(nearPoint[i], newFar);
+            if (MyRaycast.CastRay(lineStart, (lineEnd - lineStart), out hit, planes, doors, room_ID))
+            {
+                float actualMagnitude = Vec3.Distance(nearPoint[i], farPoint[i]);
+                float newMagnitude = Vec3.Distance(nearPoint[i], hit.point);
 
                 if (actualMagnitude >= newMagnitude)
                 {
@@ -97,8 +104,10 @@ public class Room_Detection : MonoBehaviour
                 }
             }
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(lineStart, lineEnd);
+            nearPoint[i] = lineStart;
+            farPoint[i] = lineEnd;
+            //Gizmos.color = Color.red;
+            //Gizmos.DrawLine(lineStart, lineEnd);
         }
     }
 

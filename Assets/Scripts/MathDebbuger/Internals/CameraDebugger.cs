@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using CustomMath;
 
 namespace MathDebbuger
 {
@@ -194,21 +195,21 @@ namespace MathDebbuger
                 void OnPostRender()
                 {
                     DrawVector();
-                   // for (int i = 0; i < vectorsPositions.Count; i++)
-                   // {
-                   //     VectorHandles.instance.AddToGameDictionary(vectorsPositions[i], style);
-                   // }
+                    // for (int i = 0; i < vectorsPositions.Count; i++)
+                    // {
+                    //     VectorHandles.instance.AddToGameDictionary(vectorsPositions[i], style);
+                    // }
                 }
                 void OnDrawGizmos()
                 {
                     if (showInEditor)
                     {
                         DrawVector();
-                     //   for (int i = 0; i < vectorsPositions.Count; i++)
-                     //   {
-                     //       VectorHandles.instance.AddToSceneDictionary(vectorsPositions[i], style);
-                     //
-                     //   }
+                        //   for (int i = 0; i < vectorsPositions.Count; i++)
+                        //   {
+                        //       VectorHandles.instance.AddToSceneDictionary(vectorsPositions[i], style);
+                        //
+                        //   }
                     }
                 }
 
@@ -236,11 +237,11 @@ namespace MathDebbuger
                         GL.End();
                     }
 
-                     for (int i = 0; i < vectorsPositions.Count; i++)
-                     {
-                         string coordinatesText = "X = " + vectorsPositions[i].x.ToString() + "\nY = " + vectorsPositions[i].y.ToString() + "\nZ = " + vectorsPositions[i].z.ToString();
-                         Handles.Label(vectorsPositions[i], coordinatesText, style);
-                     }
+                    for (int i = 0; i < vectorsPositions.Count; i++)
+                    {
+                        string coordinatesText = "X = " + vectorsPositions[i].x.ToString() + "\nY = " + vectorsPositions[i].y.ToString() + "\nZ = " + vectorsPositions[i].z.ToString();
+                        Handles.Label(vectorsPositions[i], coordinatesText, style);
+                    }
                 }
 
                 //from: https://gist.github.com/mattatz/aba0d06fa56ef65e45e2

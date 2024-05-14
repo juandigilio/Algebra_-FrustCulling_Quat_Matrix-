@@ -138,13 +138,13 @@ public class MyExercises : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + a);
+        Gizmos.DrawLine(transform.position, transform.position + a.ToVector3());
 
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + b);
+        Gizmos.DrawLine(transform.position, transform.position + b.ToVector3());
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + c);
+        Gizmos.DrawLine(transform.position, transform.position + c.ToVector3());
     }
 
     public void GetInspectorData()
@@ -152,7 +152,7 @@ public class MyExercises : MonoBehaviour
         a = new Vec3(A);
         b = new Vec3(B);
         c = new Vec3(C);
-        
+
     }
 
     public Vec3 Exercise1()
@@ -236,21 +236,21 @@ public class MyExercises : MonoBehaviour
         Vec3 result;
 
         if (elapsedTime < duration)
-        {          
+        {
             elapsedTime += Time.deltaTime;
 
             t = elapsedTime;
 
             result = Vec3.LerpUnclamped(b, a, t);
 
-            transform.position = result;  
-            
+            transform.position = result;
+
             return result;
         }
         else
         {
             elapsedTime = 0.0f;
-           
+
             return Vec3.Zero;
         }
     }

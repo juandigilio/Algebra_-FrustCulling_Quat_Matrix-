@@ -11,8 +11,8 @@ public class Vec3Test : MonoBehaviour
 
     private void Start()
     {
-        //MathDebbuger.Vector3Debugger.AddVector(Vector3.zero, "Zero");
-        //MathDebbuger.Vector3Debugger.AddVector(Vector3.one * 5, "One");
+        //MathDebbuger.Vec3Debugger.AddVector(Vec3.zero, "Zero");
+        //MathDebbuger.Vec3Debugger.AddVector(Vec3.one * 5, "One");
 
         
     }

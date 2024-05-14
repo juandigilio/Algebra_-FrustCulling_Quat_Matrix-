@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using CustomMath;
 
 [System.Serializable]
 public class Room : MonoBehaviour
@@ -40,13 +41,13 @@ public class Room : MonoBehaviour
         }
     }
 
-    public void DrawPlane(Vector3 position, Vector3 normal)
+    public void DrawPlane(Vec3 position, Vec3 normal)
     {
-        Vector3 v3;
-        if (normal.normalized != Vector3.forward)
-            v3 = Vector3.Cross(normal, Vector3.forward).normalized * normal.magnitude;
+        Vec3 v3;
+        if (normal.normalized != Vec3.Forward)
+            v3 = Vec3.Cross(normal, Vec3.Forward).normalized * normal.magnitude;
         else
-            v3 = Vector3.Cross(normal, Vector3.up).normalized * normal.magnitude; ;
+            v3 = Vec3.Cross(normal, Vec3.Up).normalized * normal.magnitude; ;
         var corner0 = position + v3;
         var corner2 = position - v3;
         var q = Quaternion.AngleAxis(90.0f, normal);

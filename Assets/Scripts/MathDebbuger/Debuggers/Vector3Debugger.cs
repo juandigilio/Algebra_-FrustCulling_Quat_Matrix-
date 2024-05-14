@@ -164,7 +164,7 @@ namespace MathDebbuger
                 debugger.Value.SetVectorArrow(arrow);
             }
         }
-        public static void SetFontSize(int size) 
+        public static void SetFontSize(int size)
         {
             foreach (KeyValuePair<string, CameraInternals.CameraDebugger> debugger in debuggers)
             {
