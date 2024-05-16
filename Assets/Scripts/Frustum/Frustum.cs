@@ -9,6 +9,14 @@ public class FrustumPlane
     public Vec3 vertexC;
 
     public Vec3 normal;
+
+    public FrustumPlane()
+    {
+        vertexA = Vec3.Zero;
+        vertexB = Vec3.Zero;
+        vertexC = Vec3.Zero;
+        normal = Vec3.Zero;
+    }
 }
 
 public class Frustum : MonoBehaviour

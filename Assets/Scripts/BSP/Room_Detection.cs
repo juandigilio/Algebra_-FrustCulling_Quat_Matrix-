@@ -13,6 +13,7 @@ public class Room_Detection : MonoBehaviour
     [SerializeField] public float otherFov;
     [SerializeField] public bool doorsBoundsVertices = false;
     [SerializeField] public int actualRoom = 0;
+    [SerializeField] public int actualCollisions;
 
     public List<GameObject> walls;
     public List<GameObject> doors;
@@ -30,7 +31,7 @@ public class Room_Detection : MonoBehaviour
     private Vec3 farLeftPoint;
     private Vec3 nearRightPoint;
     private Vec3 farRightPoint;
-    private const int TOTAL_RAYS = 16;
+    [SerializeField] public int TOTAL_RAYS = 16;
 
     private int t = 1;
 
@@ -55,7 +56,6 @@ public class Room_Detection : MonoBehaviour
     {
         CheckCameraPosition();
         UpdateRaysPosition();
-
     }
 
     private void OnDrawGizmos()
@@ -82,10 +82,19 @@ public class Room_Detection : MonoBehaviour
             }
         }
 
+        DrawIntersections();
+
+        //actualCollisions = intersections.Count;
+
+    }
+
+    private void DrawIntersections()
+    {
         foreach (Vec3 point in intersections)
         {
-            Gizmos.color = Color.green;
+            Gizmos.color = Color.blue;          
             Gizmos.DrawSphere(point, 0.5f);
+
         }
 
         foreach (Vec3 point in BSP.outerPoints)
@@ -106,15 +115,20 @@ public class Room_Detection : MonoBehaviour
         nearRightPoint = Vec3.Lerp(frustum.nearUpRightV, frustum.nearDownRightV, 0.5f);
         farRightPoint = Vec3.Lerp(frustum.farUpRightV, frustum.farDownRightV, 0.5f);
 
-        newNear.Add(nearLeftPoint);
-        newFar.Add(farLeftPoint);
-
-        for (int i = 0; i < TOTAL_RAYS; i++)
+        if (TOTAL_RAYS > 0)
         {
-            float t = (1.0f / TOTAL_RAYS) * ((float)i + 1.0f);
+            newNear.Add(nearLeftPoint);
+            newFar.Add(farLeftPoint);
+        }
 
-            newNear.Add(Vec3.Lerp(nearLeftPoint, nearRightPoint, t));
-            newFar.Add(Vec3.Lerp(farLeftPoint, farRightPoint, t));
+        float t = (1.0f / (TOTAL_RAYS - 1));
+
+        for (int i = 0; i < TOTAL_RAYS - 1; i++)
+        {
+            float temp = t * (i + 1.0f);
+
+            newNear.Add(Vec3.Lerp(nearLeftPoint, nearRightPoint, temp));
+            newFar.Add(Vec3.Lerp(farLeftPoint, farRightPoint, temp));
         }
 
         nearPoint = newNear;
@@ -123,7 +137,6 @@ public class Room_Detection : MonoBehaviour
         intersections = new List<Vec3>();
 
         BSP.CheckRoomBSP(actualRoom, rooms, nearPoint, farPoint, intersections);
-
     }
 
     private void CheckCameraPosition()
@@ -132,17 +145,28 @@ public class Room_Detection : MonoBehaviour
 
         foreach (Room room in rooms)
         {
-            if (room == null && mainCamera == null)
+            room.isVisible = false;
+    
+            if (room == null || mainCamera == null)
             {
                 Debug.LogWarning("Falta asignar la habitación o la cámara." + room);
             }
             else
             {
                 room.isVisible = BSP.PointInsideRoom(mainCamera.transform.position, room);
+                //Debug.LogWarning("Habitacion" + room + room.isVisible);
 
                 if (room.isVisible)
                 {
                     actualRoom = room.room_ID;
+
+                    foreach (Room toCheckRoom in rooms)
+                    {
+                        if (toCheckRoom.room_ID != actualRoom)
+                        {
+                            toCheckRoom.isVisible = false;
+                        }
+                    }
                     break;
                 }
             }    

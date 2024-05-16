@@ -6,6 +6,8 @@ using CustomMath;
 public static class BSP
 {
     public static List<Vec3> outerPoints = new List<Vec3>();
+    public static List<Vec3> normalsStart = new List<Vec3>();
+    public static List<Vec3> normalsEnd = new List<Vec3>();
 
     public static void CheckRoomBSP(int actualRoom, List<Room> rooms, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
     {
@@ -17,12 +19,13 @@ public static class BSP
                 List<int> collidingRays = new List<int>();
                 outerPoints = new List<Vec3>();
 
-                if (SameRoom(farPoints, room, rooms[5], outerPoints, collidingRays, actualRoom))
+                if (SameRoom(farPoints, room, rooms[4], outerPoints, collidingRays, actualRoom))
                 {
                     break;
                 }
                 else
                 {
+
                     CheckOuterPoints(rooms, outerPoints, intersectedRooms, actualRoom);
 
                     List<int> validConections = new List<int>();
@@ -34,7 +37,7 @@ public static class BSP
                     else
                     {
                         CheckRoomWalls(room, nearPoints, farPoints, intersections);
-                        //CheckRoomDoors(room, nearPoints, farPoints, intersections);
+                        CheckRoomDoors(room, nearPoints, farPoints, intersections);
                         
                     }
                 }
@@ -166,7 +169,7 @@ public static class BSP
                     sameRoom = false;
                     outerPoints.Add(point);
                     collidingRays.Add(it);
-                    Debug.LogWarning("no esta afuera");
+                    //Debug.LogWarning("no esta afuera");
                 }
             }
             else if (!PointInsideRoom(point, room))
@@ -206,7 +209,7 @@ public static class BSP
         if (collider != null)
         {
             Bounds bounds = collider.bounds;
-
+            
             wallsBounds.Add(bounds);
 
             List<Vec3> vertices = new List<Vec3>();
@@ -291,11 +294,18 @@ public static class BSP
         return false;
     }
 
+    public static bool PointIsOnPositiveSide(Vector3 point, Vector3 normal, Vector3 position)
+    {
+        Vector3 pointToPosition = point - position;
+        float dotProduct = Vector3.Dot(pointToPosition, normal);
+        return dotProduct > 0f;
+    }
+
     public static bool PointInsideRoom(Vec3 point, Room room)
     {
         bool isInside = true;
 
-        foreach (GameObject obj in room.walls)
+        foreach(GameObject obj in room.walls)
         {
             Transform normal = obj.transform;
 
