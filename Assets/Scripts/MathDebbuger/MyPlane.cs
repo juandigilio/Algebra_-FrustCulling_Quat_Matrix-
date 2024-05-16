@@ -58,7 +58,7 @@ public class MyPlane
         return GetDistanceToPoint(point) > 0;
     }
 
-    public bool Raycast(Ray ray, out float enter)
+    public bool CheckIntersectionRay(Ray ray, out float enter)
     {
         float denom = Vec3.Dot(ray.direction, normal);
 

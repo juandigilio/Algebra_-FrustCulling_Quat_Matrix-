@@ -289,12 +289,15 @@ MonoBehaviour:
   - {fileID: 395270632}
   - {fileID: 1736788299}
   isVisible: 0
-  wallsBoundsVertices: 0
-  wallsBoundsCenter: 0
+  showWallsBoundsVertices: 0
+  showWallsBoundsCenter: 0
+  showNormals: 0
   conectedRooms: 0200000003000000
   doors:
   - {fileID: 1433417612}
   wallsBounds: []
+  normals: []
+  normalsPositions: []
 --- !u!1 &131117492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1338,12 +1341,15 @@ MonoBehaviour:
   - {fileID: 592321387}
   objects: []
   isVisible: 0
-  wallsBoundsVertices: 0
-  wallsBoundsCenter: 0
+  showWallsBoundsVertices: 0
+  showWallsBoundsCenter: 0
+  showNormals: 0
   conectedRooms: 01000000
   doors:
   - {fileID: 2144633187}
   wallsBounds: []
+  normals: []
+  normalsPositions: []
 --- !u!1 &453473852
 GameObject:
   m_ObjectHideFlags: 0
@@ -2945,13 +2951,16 @@ MonoBehaviour:
   - {fileID: 1532748097}
   - {fileID: 913747582}
   isVisible: 0
-  wallsBoundsVertices: 0
-  wallsBoundsCenter: 0
+  showWallsBoundsVertices: 0
+  showWallsBoundsCenter: 0
+  showNormals: 0
   conectedRooms: 0200000004000000
   doors:
   - {fileID: 953815664}
   - {fileID: 1433417612}
   wallsBounds: []
+  normals: []
+  normalsPositions: []
 --- !u!1 &1184777881
 GameObject:
   m_ObjectHideFlags: 0
@@ -4064,13 +4073,16 @@ MonoBehaviour:
   - {fileID: 1377430282}
   - {fileID: 1447844203}
   isVisible: 0
-  wallsBoundsVertices: 1
-  wallsBoundsCenter: 1
+  showWallsBoundsVertices: 0
+  showWallsBoundsCenter: 0
+  showNormals: 0
   conectedRooms: 010000000300000004000000
   doors:
   - {fileID: 951740053}
   - {fileID: 953815664}
   wallsBounds: []
+  normals: []
+  normalsPositions: []
 --- !u!1001 &1809676725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4307,13 +4319,16 @@ MonoBehaviour:
   - {fileID: 1226791223}
   - {fileID: 382454807}
   isVisible: 0
-  wallsBoundsVertices: 1
-  wallsBoundsCenter: 1
+  showWallsBoundsVertices: 0
+  showWallsBoundsCenter: 0
+  showNormals: 0
   conectedRooms: 02000000
   doors:
   - {fileID: 2144633187}
   - {fileID: 951740053}
   wallsBounds: []
+  normals: []
+  normalsPositions: []
 --- !u!1 &2045413795
 GameObject:
   m_ObjectHideFlags: 0
@@ -4404,7 +4419,7 @@ Transform:
   m_GameObject: {fileID: 2045413795}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.03760679, z: -0, w: 0.9992926}
-  m_LocalPosition: {x: -12.97, y: 4.39, z: -12.49}
+  m_LocalPosition: {x: -12.13, y: 4.39, z: -1.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

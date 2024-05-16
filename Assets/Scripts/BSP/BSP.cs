@@ -37,7 +37,7 @@ public static class BSP
                     else
                     {
                         CheckRoomWalls(room, nearPoints, farPoints, intersections);
-                        CheckRoomDoors(room, nearPoints, farPoints, intersections);
+                        CheckRoomDoors(rooms, room, nearPoints, farPoints, intersections);
                         
                     }
                 }
@@ -45,33 +45,28 @@ public static class BSP
         }
     }
 
-    //chequear puertas
-    private static void CheckRoomDoors(Room room, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
+    private static void CheckRoomDoors(List<Room> rooms, Room room, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
     {
-        foreach (RoomConection door in room.doors)
+        foreach (GameObject obj in room.doors)
         {
+            RoomConection roomConection = obj.GetComponent<RoomConection>();
+
             int iter = 0;
-            Vector3 intersectionPoint = new Vec3();
+            Vec3 intersectionPoint = new Vec3();
 
-            Transform normal = door.transform;
-
-            Plane plane = new Plane(normal.up, normal.position);
+            MyPlane plane = new MyPlane(roomConection.door.vertex1, roomConection.door.vertex2, roomConection.door.vertex3);
 
             foreach (Vec3 point in nearPoints)
             {
-                Vector3 direction = farPoints[iter] - nearPoints[iter];
-
-                if (PlaneRaycast(nearPoints[iter], direction, plane, out intersectionPoint))
+                Vec3 direction = farPoints[iter] - nearPoints[iter];
+                if(PlaneRaycast(nearPoints[iter], direction, plane, out intersectionPoint))
                 {
-                    float actualMagnitude = Vec3.Distance(nearPoints[iter], farPoints[iter]);
-                    float newMagnitude = Vec3.Distance(nearPoints[iter], intersectionPoint);
-
-                    if (actualMagnitude > newMagnitude)
-                    {
-                        door.room1.isVisible = true;
-                        door.room2.isVisible = true;
-                    }
+                    Debug.LogWarning("Entra");
+                    roomConection.room1.isVisible = true;
+                    roomConection.room2.isVisible = true;
                 }
+            
+
                 iter++;
             }
         }
@@ -82,15 +77,15 @@ public static class BSP
         foreach (GameObject obj in room.walls)
         {
             int iter = 0;
-            Vector3 intersectionPoint = new Vec3();
+            Vec3 intersectionPoint = new Vec3();
 
             Transform normal = obj.transform;
 
-            Plane plane = new Plane(normal.up, normal.position);
+            MyPlane plane = new MyPlane(normal.up, normal.position);
 
             foreach (Vec3 point in nearPoints)
             {
-                Vector3 direction = farPoints[iter] - nearPoints[iter];
+                Vec3 direction = farPoints[iter] - nearPoints[iter];
 
                 PlaneRaycast(nearPoints[iter], direction, plane, out intersectionPoint);
 
@@ -107,10 +102,10 @@ public static class BSP
         }
     }
 
-    private static bool PlaneRaycast(Vector3 origin, Vector3 direction, Plane plane, out Vector3 collisionPoint)
+    private static bool PlaneRaycast(Vec3 origin, Vec3 direction, MyPlane plane, out Vec3 collisionPoint)
     {
         float rayDistance;
-        if (plane.Raycast(new Ray(origin, direction), out rayDistance))
+        if (plane.CheckIntersectionRay(new Ray(origin, direction), out rayDistance))
         {
             collisionPoint = origin + direction.normalized * rayDistance;
             return true;

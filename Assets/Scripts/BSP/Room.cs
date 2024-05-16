@@ -22,10 +22,13 @@ public class Room : MonoBehaviour
     [SerializeField] public bool showWallsBoundsCenter = false;
     [SerializeField] public bool showNormals = true;
     [SerializeField] public List<int> conectedRooms = new List<int>();
-    [SerializeField] public List<RoomConection> doors = new List<RoomConection>();
+    [SerializeField] public List<GameObject> doors = new List<GameObject>();
 
     public List<Bounds> wallsBounds = new List<Bounds>();
     public List<Wall> wallsVertices = new List<Wall>();
+
+    public List<Bounds> doorsBounds = new List<Bounds>();
+    public List<Wall> doorsVertices = new List<Wall>();
 
     public List<Vec3> normals = new List<Vec3>();
     public List<Vec3> normalsPositions = new List<Vec3>();
@@ -35,7 +38,13 @@ public class Room : MonoBehaviour
         foreach (GameObject wall in walls)
         {
             BSP.GetBounds(wall, wallsVertices, wallsBounds);
-            GetNormals();
+        }
+
+        GetNormals();
+
+        foreach (GameObject door in doors)
+        {
+            BSP.GetBounds(door, doorsVertices, doorsBounds);
         }
     }
 
