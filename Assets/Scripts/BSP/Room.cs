@@ -21,6 +21,7 @@ public class Room : MonoBehaviour
     [SerializeField] public bool wallsBoundsVertices = false;
     [SerializeField] public bool wallsBoundsCenter = false;
     [SerializeField] public List<int> conectedRooms = new List<int>();
+    [SerializeField] public List<RoomConection> doors = new List<RoomConection>();
 
     public List<Bounds> wallsBounds = new List<Bounds>();
     public List<Wall> wallsVertices = new List<Wall>();

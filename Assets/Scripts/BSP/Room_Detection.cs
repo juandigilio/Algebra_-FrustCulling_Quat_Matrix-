@@ -109,7 +109,7 @@ public class Room_Detection : MonoBehaviour
         newNear.Add(nearLeftPoint);
         newFar.Add(farLeftPoint);
 
-        for (int i = 0; i < TOTAL_RAYS - 1; i++)
+        for (int i = 0; i < TOTAL_RAYS; i++)
         {
             float t = (1.0f / TOTAL_RAYS) * ((float)i + 1.0f);
 
