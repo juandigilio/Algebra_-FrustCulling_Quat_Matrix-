@@ -57,7 +57,7 @@ public class ObjectCulling : MonoBehaviour
         return false;
     }
 
-    private Bounds GetMeshBounds(Mesh mesh)
+    public static Bounds GetMeshBounds(Mesh mesh)
     {
         Vector3[] vertices = mesh.vertices;
 
