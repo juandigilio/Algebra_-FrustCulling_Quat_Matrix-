@@ -103,6 +103,7 @@ public static class BSP
     private static bool PlaneRaycast(Vec3 origin, Vec3 direction, MyPlane plane, out Vec3 collisionPoint)
     {
         float rayDistance;
+
         if (plane.CheckIntersectionRay(new Ray(origin, direction), out rayDistance))
         {
             collisionPoint = origin + direction.normalized * rayDistance;

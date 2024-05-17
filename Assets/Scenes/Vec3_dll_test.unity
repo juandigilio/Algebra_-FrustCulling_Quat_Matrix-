@@ -153,10 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 642327099, guid: 93004687164111a40ae3b3f1574df746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ejercicio: 0
+  ejercicio: 6
   vectorColor: {r: 1, g: 0, b: 0, a: 1}
-  a: {x: 1, y: 1, z: 1}
-  b: {x: 4, y: 4, z: 4}
+  a: {x: 1, y: 2, z: 4}
+  b: {x: 2, y: 4, z: 2}
 --- !u!4 &79397601
 Transform:
   m_ObjectHideFlags: 0
@@ -179,24 +179,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 79397599}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90bc7295b0f288643859b914265a904a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exercise: 0
-  a1:
-    x: 0
-    y: 0
-    z: 0
-  b1:
-    x: 0
-    y: 0
-    z: 0
-  c1:
-    x: 0
-    y: 0
-    z: 0
+  exercise: 1
+  A: {x: 0, y: 0, z: 0}
+  B: {x: 0, y: 0, z: 0}
+  C: {x: 0, y: 0, z: 0}
   hisResult:
     x: 0
     y: 0
@@ -430,18 +421,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exercise: 0
-  a1:
-    x: 0
-    y: 0
-    z: 0
-  b1:
-    x: 0
-    y: 0
-    z: 0
-  c1:
-    x: 0
-    y: 0
-    z: 0
+  A: {x: 0, y: 0, z: 0}
+  B: {x: 0, y: 0, z: 0}
+  C: {x: 0, y: 0, z: 0}
   hisResult:
     x: 0
     y: 0
