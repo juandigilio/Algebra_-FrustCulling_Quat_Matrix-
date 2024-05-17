@@ -44,7 +44,7 @@ public class Room : MonoBehaviour
 
         foreach (GameObject door in doors)
         {
-            BSP.GetBounds(door, doorsVertices, doorsBounds);
+           BSP.GetBounds(door, doorsVertices, doorsBounds);
         }
     }
 
@@ -55,7 +55,7 @@ public class Room : MonoBehaviour
             foreach (Wall wall in wallsVertices)
             {
                 Debug.LogWarning("Dibuja vertices");
-                Gizmos.color = Color.red;
+                Gizmos.color = Color.grey;
                 Gizmos.DrawSphere(wall.vertex1, 0.5f);
                 Gizmos.DrawSphere(wall.vertex2, 0.5f);
                 Gizmos.DrawSphere(wall.vertex3, 0.5f);
@@ -70,6 +70,8 @@ public class Room : MonoBehaviour
                 Gizmos.color = Color.green;
                 Gizmos.DrawSphere(bounds.center, 0.5f);
             }
+
+            DrawNormals();
         }
 
         if (isVisible)
@@ -80,12 +82,6 @@ public class Room : MonoBehaviour
                 Gizmos.DrawSphere(obj.transform.position, 0.5f);
             }
         }
-
-        if (showNormals)
-        {
-            DrawNormals();
-        }
-        
     }
 
     private void GetNormals()

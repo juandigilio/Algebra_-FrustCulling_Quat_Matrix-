@@ -294,8 +294,9 @@ MonoBehaviour:
   showNormals: 0
   conectedRooms: 0200000003000000
   doors:
-  - {fileID: 1433417612}
+  - {fileID: 1433417607}
   wallsBounds: []
+  doorsBounds: []
   normals: []
   normalsPositions: []
 --- !u!1 &131117492
@@ -1346,8 +1347,9 @@ MonoBehaviour:
   showNormals: 0
   conectedRooms: 01000000
   doors:
-  - {fileID: 2144633187}
+  - {fileID: 2144633182}
   wallsBounds: []
+  doorsBounds: []
   normals: []
   normalsPositions: []
 --- !u!1 &453473852
@@ -2590,7 +2592,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.5022, y: 8.6875, z: -4.19}
-  m_LocalScale: {x: 5.808764, y: 10.09423, z: 0.12123}
+  m_LocalScale: {x: 5.808764, y: 10.09423, z: 1.4811467}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 726420781}
@@ -2681,6 +2683,9 @@ MonoBehaviour:
   door_ID: 2
   room1: {fileID: 1969731267}
   room2: {fileID: 1802521003}
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &953815659
 GameObject:
   m_ObjectHideFlags: 0
@@ -2711,7 +2716,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 15.5344, y: 8.6875, z: -4.3}
-  m_LocalScale: {x: 3.1599677, y: 10.09423, z: 0.12123}
+  m_LocalScale: {x: 3.1599677, y: 10.09423, z: 1.0024707}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 726420781}
@@ -2802,6 +2807,9 @@ MonoBehaviour:
   door_ID: 3
   room1: {fileID: 1802521003}
   room2: {fileID: 1177410553}
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &984392949 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 54b107e50acd7e24b96d7de887c68833, type: 3}
@@ -2956,9 +2964,10 @@ MonoBehaviour:
   showNormals: 0
   conectedRooms: 0200000004000000
   doors:
-  - {fileID: 953815664}
-  - {fileID: 1433417612}
+  - {fileID: 953815659}
+  - {fileID: 1433417607}
   wallsBounds: []
+  doorsBounds: []
   normals: []
   normalsPositions: []
 --- !u!1 &1184777881
@@ -3462,7 +3471,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 15.5344, y: 8.6875, z: -14.24}
-  m_LocalScale: {x: 3.1599677, y: 10.09423, z: 0.12123}
+  m_LocalScale: {x: 3.1599677, y: 10.09423, z: 0.8058037}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 726420781}
@@ -3553,6 +3562,9 @@ MonoBehaviour:
   door_ID: 4
   room1: {fileID: 1177410553}
   room2: {fileID: 53344077}
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1001 &1447548919
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4078,9 +4090,10 @@ MonoBehaviour:
   showNormals: 0
   conectedRooms: 010000000300000004000000
   doors:
-  - {fileID: 951740053}
-  - {fileID: 953815664}
+  - {fileID: 951740048}
+  - {fileID: 953815659}
   wallsBounds: []
+  doorsBounds: []
   normals: []
   normalsPositions: []
 --- !u!1001 &1809676725
@@ -4324,9 +4337,10 @@ MonoBehaviour:
   showNormals: 0
   conectedRooms: 02000000
   doors:
-  - {fileID: 2144633187}
-  - {fileID: 951740053}
+  - {fileID: 2144633182}
+  - {fileID: 951740048}
   wallsBounds: []
+  doorsBounds: []
   normals: []
   normalsPositions: []
 --- !u!1 &2045413795
@@ -4567,7 +4581,8 @@ MonoBehaviour:
   nearPoint: []
   farPoint: []
   doorsBounds: []
-  TOTAL_RAYS: 10
+  horizontalRays: 10
+  verticalRays: 6
 --- !u!1 &2071232330
 GameObject:
   m_ObjectHideFlags: 0
@@ -4738,7 +4753,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.7126, y: 9.1303, z: -24.11}
-  m_LocalScale: {x: 4.9354625, y: 10.219356, z: 0.24229}
+  m_LocalScale: {x: 4.9354625, y: 10.219356, z: 0.9583781}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 726420781}
@@ -4829,6 +4844,9 @@ MonoBehaviour:
   door_ID: 1
   room1: {fileID: 1969731267}
   room2: {fileID: 1969731267}
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

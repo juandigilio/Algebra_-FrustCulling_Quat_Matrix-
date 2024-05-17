@@ -20,8 +20,11 @@ public class Room_Detection : MonoBehaviour
 
     public List<Vec3> nearPoint = new List<Vec3>();
     public List<Vec3> farPoint = new List<Vec3>();
+    public List<List<Vec3>> verticalNear = new List<List<Vec3>>();
+    public List<List<Vec3>> verticalFar = new List<List<Vec3>>();
 
     private List<Room> rooms = new List<Room>();
+
     public List<Bounds> doorsBounds = new List<Bounds>();
     public List<Wall> doorsBoundsVertex = new List<Wall>();
 
@@ -31,7 +34,9 @@ public class Room_Detection : MonoBehaviour
     private Vec3 farLeftPoint;
     private Vec3 nearRightPoint;
     private Vec3 farRightPoint;
-    [SerializeField] public int TOTAL_RAYS = 16;
+
+    [SerializeField] public int horizontalRays = 10;
+    [SerializeField] public int verticalRays = 6;
 
     private int t = 1;
 
@@ -60,16 +65,22 @@ public class Room_Detection : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        int i = 0;
-
-        foreach (Vec3 near in nearPoint)
+        int j = 0;
+        foreach (List<Vec3> list in verticalNear)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(nearPoint[i], farPoint[i]);
+            int i = 0;
 
-            i++;
+            foreach (Vec3 near in list)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(list[i], verticalFar[j][i]);
+
+                i++;
+            }
+
+            j++;
         }
-
+        
         if (doorsBoundsVertices)
         {
             foreach (Wall vertex in doorsBoundsVertex)
@@ -84,8 +95,17 @@ public class Room_Detection : MonoBehaviour
 
         DrawIntersections();
 
-        //actualCollisions = intersections.Count;
+        //foreach (Vec3 point in BSP.outerPoints)
+        //{
+        //    Gizmos.color = Color.green;
+        //    Gizmos.DrawSphere(point, 0.5f);
+        //}
 
+        //foreach (Vec3 point in BSP.inerPoints)
+        //{
+        //    Gizmos.color = Color.green;
+        //    Gizmos.DrawSphere(point, 0.5f);
+        //}
     }
 
     private void DrawIntersections()
@@ -104,39 +124,77 @@ public class Room_Detection : MonoBehaviour
         }
     }
 
-    private void UpdateRaysPosition()
+    private void UpdateHorizontal(List<Vec3> newNear, List<Vec3> newFar, float tempAngle)
     {
-        List<Vec3> newNear = new List<Vec3>();
-        List<Vec3> newFar = new List<Vec3>();
+        nearLeftPoint = Vec3.Lerp(frustum.nearUpLeftV, frustum.nearDownLeftV, tempAngle);
+        farLeftPoint = Vec3.Lerp(frustum.farUpLeftV, frustum.farDownLeftV, tempAngle);
 
-        nearLeftPoint = Vec3.Lerp(frustum.nearUpLeftV, frustum.nearDownLeftV, 0.5f);
-        farLeftPoint = Vec3.Lerp(frustum.farUpLeftV, frustum.farDownLeftV, 0.5f);
+        nearRightPoint = Vec3.Lerp(frustum.nearUpRightV, frustum.nearDownRightV, tempAngle);
+        farRightPoint = Vec3.Lerp(frustum.farUpRightV, frustum.farDownRightV, tempAngle);
 
-        nearRightPoint = Vec3.Lerp(frustum.nearUpRightV, frustum.nearDownRightV, 0.5f);
-        farRightPoint = Vec3.Lerp(frustum.farUpRightV, frustum.farDownRightV, 0.5f);
-
-        if (TOTAL_RAYS > 0)
+        if (horizontalRays == 1)
+        {
+            newNear.Add(Vec3.Lerp(nearLeftPoint, nearRightPoint, 0.5f));
+            newFar.Add(Vec3.Lerp(farLeftPoint, farRightPoint, 0.5f));
+        }
+        else if (horizontalRays > 0)
         {
             newNear.Add(nearLeftPoint);
             newFar.Add(farLeftPoint);
         }
 
-        float t = (1.0f / (TOTAL_RAYS - 1));
+        float t = (1.0f / (horizontalRays - 1));
 
-        for (int i = 0; i < TOTAL_RAYS - 1; i++)
+        for (int j = 0; j < horizontalRays - 1; j++)
         {
-            float temp = t * (i + 1.0f);
+            float temp = t * (j + 1.0f);
 
             newNear.Add(Vec3.Lerp(nearLeftPoint, nearRightPoint, temp));
             newFar.Add(Vec3.Lerp(farLeftPoint, farRightPoint, temp));
         }
+    }
 
-        nearPoint = newNear;
-        farPoint = newFar;
+    private void UpdateRaysPosition()
+    {
+        List<Vec3> newNear = new List<Vec3>();
+        List<Vec3> newFar = new List<Vec3>();
+
+        List<List<Vec3>> newVerticalNear = new List<List<Vec3>>();
+        List<List<Vec3>> newVerticalFar = new List<List<Vec3>>();
+
+        if (verticalRays > 0)
+        {
+            if (verticalRays == 1)
+            {
+                UpdateHorizontal(newNear, newFar, 0.5f);
+            }
+            else
+            {
+                UpdateHorizontal(newNear, newFar, 0);
+            }           
+        }
+   
+        newVerticalNear.Add(newNear);
+        newVerticalFar.Add(newFar);
+
+        float angle = (1.0f / (verticalRays - 1));
+
+        for (int i = 0; i < verticalRays - 1; i++)
+        {
+            float tempAngle = angle * (i + 1.0f);
+
+            UpdateHorizontal(newNear, newFar, tempAngle);
+
+            newVerticalNear.Add(newNear);
+            newVerticalFar.Add(newFar);
+        }
+
+        verticalNear = newVerticalNear;
+        verticalFar = newVerticalFar;
 
         intersections = new List<Vec3>();
 
-        BSP.CheckRoomBSP(actualRoom, rooms, nearPoint, farPoint, intersections);
+        BSP.CheckRoomBSP(actualRoom, rooms, verticalNear, verticalFar, intersections);
     }
 
     private void CheckCameraPosition()

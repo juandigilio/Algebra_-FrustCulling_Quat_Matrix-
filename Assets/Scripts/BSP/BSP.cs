@@ -6,27 +6,28 @@ using CustomMath;
 public static class BSP
 {
     public static List<Vec3> outerPoints = new List<Vec3>();
+    public static List<Vec3> inerPoints = new List<Vec3>();
     public static List<Vec3> normalsStart = new List<Vec3>();
     public static List<Vec3> normalsEnd = new List<Vec3>();
 
-    public static void CheckRoomBSP(int actualRoom, List<Room> rooms, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
+    public static void CheckRoomBSP(int actualRoom, List<Room> rooms, List<List<Vec3>> nearPoints, List<List<Vec3>> farPoints, List<Vec3> intersections)
     {
         foreach (Room room in rooms)
         {
             if (actualRoom == room.room_ID)
             {
                 List<int> intersectedRooms = new List<int>();
-                List<int> collidingRays = new List<int>();
                 outerPoints = new List<Vec3>();
+                inerPoints = new List<Vec3>();
 
-                if (SameRoom(farPoints, room, rooms[4], outerPoints, collidingRays, actualRoom))
+                if (SameRoom(farPoints, nearPoints, room, rooms[4], actualRoom))
                 {
                     break;
                 }
                 else
                 {
 
-                    CheckOuterPoints(rooms, outerPoints, intersectedRooms, actualRoom);
+                    CheckOuterPoints(rooms, intersectedRooms, actualRoom);
 
                     List<int> validConections = new List<int>();
 
@@ -36,16 +37,17 @@ public static class BSP
                     }
                     else
                     {
-                        CheckRoomWalls(room, nearPoints, farPoints, intersections);
-                        CheckRoomDoors(rooms, room, nearPoints, farPoints, intersections);
-                        
+                        CheckRoomWalls(room, intersections);
+                        //CheckRoomDoors(room);
+                        DoorCheck(room, intersections);
+
                     }
                 }
             }
         }
     }
 
-    private static void CheckRoomDoors(List<Room> rooms, Room room, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
+    private static void CheckRoomDoors(Room room)
     {
         foreach (GameObject obj in room.doors)
         {
@@ -56,41 +58,39 @@ public static class BSP
 
             MyPlane plane = new MyPlane(roomConection.door.vertex1, roomConection.door.vertex2, roomConection.door.vertex3);
 
-            foreach (Vec3 point in nearPoints)
+            foreach (Vec3 point in outerPoints)
             {
-                Vec3 direction = farPoints[iter] - nearPoints[iter];
-                if(PlaneRaycast(nearPoints[iter], direction, plane, out intersectionPoint))
+                Vec3 direction = outerPoints[iter] - inerPoints[iter];
+
+                if (PlaneRaycast(inerPoints[iter], direction, plane, out intersectionPoint))
                 {
                     Debug.LogWarning("Entra");
                     roomConection.room1.isVisible = true;
                     roomConection.room2.isVisible = true;
                 }
-            
 
                 iter++;
             }
         }
     }
 
-    private static void CheckRoomWalls(Room room, List<Vec3> nearPoints, List<Vec3> farPoints, List<Vec3> intersections)
+    private static void CheckRoomWalls(Room room, List<Vec3> intersections)
     {
         foreach (GameObject obj in room.walls)
         {
-            int iter = 0;
             Vec3 intersectionPoint = new Vec3();
-
             Transform normal = obj.transform;
-
             MyPlane plane = new MyPlane(normal.up, normal.position);
 
-            foreach (Vec3 point in nearPoints)
+            int iter = 0;
+            foreach (Vec3 point in inerPoints)
             {
-                Vec3 direction = farPoints[iter] - nearPoints[iter];
+                Vec3 direction = outerPoints[iter] - inerPoints[iter];
 
-                PlaneRaycast(nearPoints[iter], direction, plane, out intersectionPoint);
+                PlaneRaycast(inerPoints[iter], direction, plane, out intersectionPoint);
 
-                float actualMagnitude = Vec3.Distance(nearPoints[iter], farPoints[iter]);
-                float newMagnitude = Vec3.Distance(nearPoints[iter], intersectionPoint);
+                float actualMagnitude = Vec3.Distance(inerPoints[iter], outerPoints[iter]);
+                float newMagnitude = Vec3.Distance(inerPoints[iter], intersectionPoint);
 
                 if (actualMagnitude > newMagnitude)
                 {
@@ -150,37 +150,43 @@ public static class BSP
         return hasConection;
     }
 
-    private static bool SameRoom(List<Vec3> farPoint, Room room, Room outRoom, List<Vec3> outerPoints, List<int> collidingRays, int actualRoom)
+    private static bool SameRoom(List<List<Vec3>> farPoints, List<List<Vec3>> nearPoints, Room room, Room outRoom, int actualRoom)
     {
         bool sameRoom = true;
 
-        int it = 0;
-        foreach (Vec3 point in farPoint)
+        int i = 0;
+        foreach (List<Vec3> list in farPoints)
         {
-            if (actualRoom == 5)
+            foreach (Vec3 point in list)
             {
-                if(!PointIsOutside(point, outRoom))
+                //Debug.LogWarning("Entra");
+                int j = 0;
+                if (actualRoom == 5)
+                {
+                    if (!PointIsOutside(point, outRoom))
+                    {
+                        sameRoom = false;
+                        outerPoints.Add(point);
+                        inerPoints.Add(nearPoints[i][j]);
+                    }
+                }
+                else if (!PointInsideRoom(point, room))
                 {
                     sameRoom = false;
                     outerPoints.Add(point);
-                    collidingRays.Add(it);
-                    //Debug.LogWarning("no esta afuera");
+                    inerPoints.Add(nearPoints[i][j]);
                 }
-            }
-            else if (!PointInsideRoom(point, room))
-            {
-                sameRoom = false;
-                outerPoints.Add(point);
-                collidingRays.Add(it);
-            }
 
-            it++;
+                j++;
+            }
+            i++;
         }
+
 
         return sameRoom;
     }
 
-    private static void CheckOuterPoints(List<Room> rooms, List<Vec3> outerPoints, List<int> intersectedRooms, int actualRoom)
+    private static void CheckOuterPoints(List<Room> rooms, List<int> intersectedRooms, int actualRoom)
     {
         foreach (Room outerRoom in rooms)
         {
@@ -204,7 +210,7 @@ public static class BSP
         if (collider != null)
         {
             Bounds bounds = collider.bounds;
-            
+
             wallsBounds.Add(bounds);
 
             List<Vec3> vertices = new List<Vec3>();
@@ -241,57 +247,9 @@ public static class BSP
         return vertices;
     }
 
-    public static bool LineIntersectsWall(Vec3 lineStart, Vec3 lineEnd, Wall wall, out Vec3 intersectionPoint)
+    public static bool PointIsOnPositiveSide(Vec3 point, Vec3 normal, Vec3 position)
     {
-        Vec3 lineDirection = (lineEnd - lineStart).normalized;
-
-        Vec3 p1 = wall.vertex1;
-        Vec3 p2 = wall.vertex2;
-        Vec3 p3 = wall.vertex3;
-        Vec3 p4 = wall.vertex4;
-
-        Vec3 planeNormal = Vec3.Cross(p2 - p1, p3 - p1).normalized;
-        Vec3 planePoint = p1;
-
-        float denominator = Vec3.Dot(planeNormal, lineDirection);
-
-        if (Mathf.Abs(denominator) < Mathf.Epsilon)
-        {
-            intersectionPoint = Vec3.Zero;
-            return false;
-        }
-
-        float t = Vec3.Dot(planePoint - lineStart, planeNormal) / denominator;
-
-        intersectionPoint = lineStart + t * lineDirection;
-
-        if (IsPointInsideWallBounds(intersectionPoint, p1, p2, p3, p4))
-        {
-            return true;
-        }
-
-        intersectionPoint = Vec3.Zero;
-        return false;
-    }
-
-    public static bool IsPointInsideWallBounds(Vec3 point, Vec3 p1, Vec3 p2, Vec3 p3, Vec3 p4)
-    {
-       Vec3 normal1 = Vec3.Cross(p2 - p1, point - p1);
-       Vec3 normal2 = Vec3.Cross(p3 - p2, point - p2);
-       Vec3 normal3 = Vec3.Cross(p4 - p3, point - p3);
-       Vec3 normal4 = Vec3.Cross(p1 - p4, point - p4);
-
-        if (Vec3.Dot(normal1, normal2) >= 0 && Vec3.Dot(normal2, normal3) >= 0 && Vec3.Dot(normal3, normal4) >= 0 && Vec3.Dot(normal4, normal1) >= 0)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static bool PointIsOnPositiveSide(Vector3 point, Vector3 normal, Vector3 position)
-    {
-        Vector3 pointToPosition = point - position;
+        Vec3 pointToPosition = point - position;
         float dotProduct = Vector3.Dot(pointToPosition, normal);
         return dotProduct > 0f;
     }
@@ -300,7 +258,7 @@ public static class BSP
     {
         bool isInside = true;
 
-        foreach(GameObject obj in room.walls)
+        foreach (GameObject obj in room.walls)
         {
             Transform normal = obj.transform;
 
@@ -335,5 +293,86 @@ public static class BSP
         }
 
         return isOutside;
+    }
+
+    private static void DoorCheck(Room room, List<Vec3> intersections)
+    {
+        foreach (GameObject obj in room.doors)
+        {
+            RoomConection roomConection = obj.GetComponent<RoomConection>();
+            BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
+            Bounds bounds = boxCollider.bounds;
+
+            if (!boxCollider)
+            {
+                Debug.LogWarning("no hay BoxCollider");
+            }
+            else
+            {
+                foreach (Vec3 point in intersections)
+                {
+                    if (bounds.Contains(point))
+                    {
+                        roomConection.room1.isVisible = true;
+                        roomConection.room2.isVisible = true;
+                    }
+                }
+            }
+           
+        }     
+    }
+
+    private static List<Vec3> GetColliderVertices(Collider collider)
+    {
+        Mesh mesh = collider.GetComponent<MeshFilter>().mesh;
+
+        List<Vec3> vertices = new List<Vec3>();
+        
+        foreach (Vector3 vertex in mesh.vertices)
+        {
+            vertices.Add(vertex);
+        }
+
+        return vertices;
+    }
+
+    private static bool LineIntersectsCollider(Vec3 lineStart, Vec3 lineEnd, List<Vec3> colliderVertices)
+    {
+        int i = 0;
+        foreach (Vec3 vertex in colliderVertices) 
+        {
+            int nextIndex = (i + 1) % colliderVertices.Count;
+
+            if (LineIntersectsSegment(lineStart, lineEnd, colliderVertices[i], colliderVertices[nextIndex]))
+            {
+                return true;
+            }
+
+            i++;
+        }
+        return false;
+    }
+
+    private static bool LineIntersectsSegment(Vec3 lineStart, Vec3 lineEnd, Vec3 segmentStart, Vec3 segmentEnd)
+    {
+        Vec3 direction1 = lineEnd - lineStart;
+        Vec3 direction2 = segmentEnd - segmentStart;
+
+        float s, t;
+        float denominator = (-direction2.x * direction1.y + direction1.x * direction2.y);
+
+        if (denominator == 0)
+        {
+            return false;
+        }
+
+        float invDenominator = 1.0f / denominator;
+        float sNumerator = (-direction1.y * (lineStart.x - segmentStart.x) + direction1.x * (lineStart.y - segmentStart.y));
+        float tNumerator = (direction2.x * (lineStart.y - segmentStart.y) - direction2.y * (lineStart.x - segmentStart.x));
+
+        s = sNumerator * invDenominator;
+        t = tNumerator * invDenominator;
+
+        return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
     }
 }

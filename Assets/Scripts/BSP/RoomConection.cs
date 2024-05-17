@@ -20,6 +20,7 @@ public class RoomConection : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        Gizmos.color = Color.grey;
         Gizmos.DrawSphere(door.vertex1, 0.5f);
         Gizmos.DrawSphere(door.vertex2, 0.5f);
         Gizmos.DrawSphere(door.vertex3, 0.5f);
@@ -45,9 +46,9 @@ public class RoomConection : MonoBehaviour
 
             vertices = GetBoundsVertices(bounds);
 
-            door.vertex1 = vertices[0];
-            door.vertex2 = vertices[1];
-            door.vertex3 = vertices[2];
+            door.vertex1 = vertices[2];
+            door.vertex2 = vertices[0];
+            door.vertex3 = vertices[1];
             door.vertex4 = vertices[3];
 
         }
