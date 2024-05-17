@@ -94,18 +94,6 @@ public class Room_Detection : MonoBehaviour
         }
 
         DrawIntersections();
-
-        //foreach (Vec3 point in BSP.outerPoints)
-        //{
-        //    Gizmos.color = Color.green;
-        //    Gizmos.DrawSphere(point, 0.5f);
-        //}
-
-        //foreach (Vec3 point in BSP.inerPoints)
-        //{
-        //    Gizmos.color = Color.green;
-        //    Gizmos.DrawSphere(point, 0.5f);
-        //}
     }
 
     private void DrawIntersections()

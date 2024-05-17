@@ -37,39 +37,10 @@ public static class BSP
                     }
                     else
                     {
-                        CheckRoomWalls(room, intersections);
-                        //CheckRoomDoors(room);
-                        DoorCheck(room, intersections);
-
+                        CheckRoomWalls(room, intersections);   
+                        CheckRoomDoors(room, intersections);
                     }
                 }
-            }
-        }
-    }
-
-    private static void CheckRoomDoors(Room room)
-    {
-        foreach (GameObject obj in room.doors)
-        {
-            RoomConection roomConection = obj.GetComponent<RoomConection>();
-
-            int iter = 0;
-            Vec3 intersectionPoint = new Vec3();
-
-            MyPlane plane = new MyPlane(roomConection.door.vertex1, roomConection.door.vertex2, roomConection.door.vertex3);
-
-            foreach (Vec3 point in outerPoints)
-            {
-                Vec3 direction = outerPoints[iter] - inerPoints[iter];
-
-                if (PlaneRaycast(inerPoints[iter], direction, plane, out intersectionPoint))
-                {
-                    Debug.LogWarning("Entra");
-                    roomConection.room1.isVisible = true;
-                    roomConection.room2.isVisible = true;
-                }
-
-                iter++;
             }
         }
     }
@@ -99,6 +70,33 @@ public static class BSP
 
                 iter++;
             }
+        }
+    }
+
+    private static void CheckRoomDoors(Room room, List<Vec3> intersections)
+    {
+        foreach (GameObject obj in room.doors)
+        {
+            RoomConection roomConection = obj.GetComponent<RoomConection>();
+            BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
+            Bounds bounds = boxCollider.bounds;
+
+            if (!boxCollider)
+            {
+                Debug.LogWarning("no hay BoxCollider");
+            }
+            else
+            {
+                foreach (Vec3 point in intersections)
+                {
+                    if (bounds.Contains(point))
+                    {
+                        roomConection.room1.isVisible = true;
+                        roomConection.room2.isVisible = true;
+                    }
+                }
+            }
+
         }
     }
 
@@ -293,86 +291,5 @@ public static class BSP
         }
 
         return isOutside;
-    }
-
-    private static void DoorCheck(Room room, List<Vec3> intersections)
-    {
-        foreach (GameObject obj in room.doors)
-        {
-            RoomConection roomConection = obj.GetComponent<RoomConection>();
-            BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
-            Bounds bounds = boxCollider.bounds;
-
-            if (!boxCollider)
-            {
-                Debug.LogWarning("no hay BoxCollider");
-            }
-            else
-            {
-                foreach (Vec3 point in intersections)
-                {
-                    if (bounds.Contains(point))
-                    {
-                        roomConection.room1.isVisible = true;
-                        roomConection.room2.isVisible = true;
-                    }
-                }
-            }
-           
-        }     
-    }
-
-    private static List<Vec3> GetColliderVertices(Collider collider)
-    {
-        Mesh mesh = collider.GetComponent<MeshFilter>().mesh;
-
-        List<Vec3> vertices = new List<Vec3>();
-        
-        foreach (Vector3 vertex in mesh.vertices)
-        {
-            vertices.Add(vertex);
-        }
-
-        return vertices;
-    }
-
-    private static bool LineIntersectsCollider(Vec3 lineStart, Vec3 lineEnd, List<Vec3> colliderVertices)
-    {
-        int i = 0;
-        foreach (Vec3 vertex in colliderVertices) 
-        {
-            int nextIndex = (i + 1) % colliderVertices.Count;
-
-            if (LineIntersectsSegment(lineStart, lineEnd, colliderVertices[i], colliderVertices[nextIndex]))
-            {
-                return true;
-            }
-
-            i++;
-        }
-        return false;
-    }
-
-    private static bool LineIntersectsSegment(Vec3 lineStart, Vec3 lineEnd, Vec3 segmentStart, Vec3 segmentEnd)
-    {
-        Vec3 direction1 = lineEnd - lineStart;
-        Vec3 direction2 = segmentEnd - segmentStart;
-
-        float s, t;
-        float denominator = (-direction2.x * direction1.y + direction1.x * direction2.y);
-
-        if (denominator == 0)
-        {
-            return false;
-        }
-
-        float invDenominator = 1.0f / denominator;
-        float sNumerator = (-direction1.y * (lineStart.x - segmentStart.x) + direction1.x * (lineStart.y - segmentStart.y));
-        float tNumerator = (direction2.x * (lineStart.y - segmentStart.y) - direction2.y * (lineStart.x - segmentStart.x));
-
-        s = sNumerator * invDenominator;
-        t = tNumerator * invDenominator;
-
-        return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
-    }
+    }    
 }
