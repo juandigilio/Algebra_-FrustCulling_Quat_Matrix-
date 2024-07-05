@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
+using System.Numerics;
 using System;
+using Vector3 = UnityEngine.Vector3;
+using Vector2 = UnityEngine.Vector2;
 
 namespace CustomMath
 {
@@ -108,6 +111,18 @@ namespace CustomMath
         public static Vec3 operator *(float scalar, Vec3 v3)
         {
             return v3 * scalar;
+        }
+
+        public static Vec3 operator *(My_Quaternion rotation, Vec3 vec)
+        {
+            Vec3 u = new Vec3(rotation.X, rotation.Y, rotation.Z);
+            float s = rotation.W;
+
+            Vec3 result = 2.0f * Vec3.Dot(u, vec) * u
+                + (s * s - Vec3.Dot(u, u)) * vec
+                + 2.0f * s * Vec3.Cross(u, vec);
+
+            return result;
         }
 
         public static Vec3 operator /(Vec3 v3, float scalar)

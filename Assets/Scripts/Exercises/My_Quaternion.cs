@@ -1,4 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
+using CustomMath;
+using UnityEngine;
+
 
 namespace System.Numerics
 {
@@ -21,11 +23,11 @@ namespace System.Numerics
             W = w;
         }
 
-        public My_Quaternion(Vector3 vectorPart, float scalarPart)
+        public My_Quaternion(Vec3 vectorPart, float scalarPart)
         {
-            X = vectorPart.X;
-            Y = vectorPart.Y;
-            Z = vectorPart.Z;
+            X = vectorPart.x;
+            Y = vectorPart.y;
+            Z = vectorPart.z;
             W = scalarPart;
         }
 
@@ -195,12 +197,69 @@ namespace System.Numerics
             return ans;
         }
 
+        public static My_Quaternion RotateTowards(My_Quaternion from, My_Quaternion to, float maxDegreesDelta)
+        {
+            float num = My_Quaternion.Dot(from, to);
+            if (num > 1f)
+            {
+                return to;
+            }
+            else if (num < -1f)
+            {
+                return from;
+            }
+            float num2 = Mathf.Acos(num);
+            float t = Mathf.Min(1f, maxDegreesDelta / num2);
+            My_Quaternion result = My_Quaternion.SlerpUnclamped(from, to, t);
+            result.Normalize();
+            return result;
+        }
+
+        public static My_Quaternion LerpUnclamped(My_Quaternion a, My_Quaternion b, float t)
+        {
+            return new My_Quaternion(
+                Mathf.LerpUnclamped(a.X, b.X, t),
+                Mathf.LerpUnclamped(a.Y, b.Y, t),
+                Mathf.LerpUnclamped(a.Z, b.Z, t),
+                Mathf.LerpUnclamped(a.W, b.W, t)
+            );
+        }
+
+        public static My_Quaternion SlerpUnclamped(My_Quaternion a, My_Quaternion b, float t)
+        {
+            // Si los cuaterniones son iguales, retornar uno de ellos
+            if (My_Quaternion.Dot(a, b) > 0.9995f)
+            {
+                return My_Quaternion.LerpUnclamped(a, b, t);
+            }
+
+            float cosHalfTheta = a.W * b.W + a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+            if (Mathf.Abs(cosHalfTheta) >= 1.0f)
+            {
+                return a;
+            }
+
+            float halfTheta = Mathf.Acos(cosHalfTheta);
+            float sinHalfTheta = Mathf.Sqrt(1.0f - cosHalfTheta * cosHalfTheta);
+
+            float ratioA = Mathf.Sin((1.0f - t) * halfTheta) / sinHalfTheta;
+            float ratioB = Mathf.Sin(t * halfTheta) / sinHalfTheta;
+
+            return new My_Quaternion(
+                a.X * ratioA + b.X * ratioB,
+                a.Y * ratioA + b.Y * ratioB,
+                a.Z * ratioA + b.Z * ratioB,
+                a.W * ratioA + b.W * ratioB
+            );
+        }
+
         public static My_Quaternion Conjugate(My_Quaternion value)
         {
             return new My_Quaternion(-value.X, -value.Y, -value.Z, value.W);
         }
 
-        public static My_Quaternion CreateFromAxisAngle(Vector3 axis, float angle)
+        public static My_Quaternion CreateFromAxisAngle(Vec3 axis, float angle)
         {
             My_Quaternion ans;
 
@@ -208,9 +267,9 @@ namespace System.Numerics
             float s = MathF.Sin(halfAngle);
             float c = MathF.Cos(halfAngle);
 
-            ans.X = axis.X * s;
-            ans.Y = axis.Y * s;
-            ans.Z = axis.Z * s;
+            ans.X = axis.x * s;
+            ans.Y = axis.y * s;
+            ans.Z = axis.z * s;
             ans.W = c;
 
             return ans;
@@ -373,19 +432,51 @@ namespace System.Numerics
             );
         }
 
-        public static My_Quaternion Multiply(My_Quaternion value1, float value2)
-        {
-            return value1 * value2;
-        }
+        //public static My_Quaternion Multiply(My_Quaternion value1, float value2)
+        //{
+        //    return value1 * value2;
+        //}
 
         public static My_Quaternion Negate(My_Quaternion value)
         {
             return -value;
         }
 
-        public static My_Quaternion Normalize(My_Quaternion value)
+        public My_Quaternion Normalize()
         {
-            return Divide(value, value.Length());
+            return Divide(this, Length());
+        }
+
+        public static My_Quaternion Euler(float x, float y, float z)
+        {
+            float halfToRad = Mathf.Deg2Rad * 0.5f;
+            float sx = Mathf.Sin(x * halfToRad);
+            float cx = Mathf.Cos(x * halfToRad);
+            float sy = Mathf.Sin(y * halfToRad);
+            float cy = Mathf.Cos(y * halfToRad);
+            float sz = Mathf.Sin(z * halfToRad);
+            float cz = Mathf.Cos(z * halfToRad);
+
+            My_Quaternion result;
+            result.X = sx * cy * cz + cx * sy * sz;
+            result.Y = cx * sy * cz - sx * cy * sz;
+            result.Z = cx * cy * sz - sx * sy * cz;
+            result.W = cx * cy * cz + sx * sy * sz;
+
+            return result;
+        }
+
+        public static My_Quaternion AngleAxis(float angle, Vec3 newAxis)
+        {
+            float halfAngle = angle * Mathf.Deg2Rad * 0.5f;
+            float s = Mathf.Sin(halfAngle);
+
+            return new My_Quaternion(
+                newAxis.x * s,
+                newAxis.y * s,
+                newAxis.z * s,
+                Mathf.Cos(halfAngle)
+            );
         }
 
         public static My_Quaternion Slerp(My_Quaternion quaternion1, My_Quaternion quaternion2, float amount)
@@ -437,10 +528,10 @@ namespace System.Numerics
             return value1 - value2;
         }
 
-        public override readonly bool Equals([NotNullWhen(true)] object? obj)
-        {
-            return (obj is My_Quaternion other) && Equals(other);
-        }
+        //public override readonly bool Equals([NotNullWhen(true)] object? obj)
+        //{
+        //    return (obj is My_Quaternion other) && Equals(other);
+        //}
 
         public readonly bool Equals(My_Quaternion other)
         {
