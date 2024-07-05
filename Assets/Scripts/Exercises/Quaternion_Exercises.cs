@@ -3,7 +3,7 @@ using UnityEngine;
 using CustomMath;
 using System.Numerics;
 using System.Collections.Generic;
-using Quaternion = UnityEngine.Quaternion;
+//using Quaternion = UnityEngine.Quaternion;
 
 public enum Quat_Exercices
 {
@@ -20,7 +20,8 @@ public class Quaternion_Exercises : MonoBehaviour
     private Vec3 B = new Vec3();
     private Vec3 C = new Vec3();
     private Vec3 D = new Vec3();
-    private Vec3 axis = new Vec3();
+
+    private int lastUsed;
 
 
     [SerializeField] private float angle;
@@ -41,6 +42,8 @@ public class Quaternion_Exercises : MonoBehaviour
         Vector3Debugger.AddVector(C, D, Color.black, vectorId[3]);
 
         SetInitValues();
+
+        lastUsed = (int)exercise;
     }
 
     void FixedUpdate()
@@ -48,62 +51,47 @@ public class Quaternion_Exercises : MonoBehaviour
         UpdateExercises();
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, axis);
-    }
-
     private void Exercise1()
     {
         TurnOfVectors();
-        Vector3Debugger.TurnOnVector(vectorId[0]);
+        TurnOnVectors(1);
 
-        My_Quaternion rotation = My_Quaternion.Euler(0, angle, 0);
+        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, Vec3.Up);
         A = rotation * A;
-
-        Vector3Debugger.UpdatePosition(vectorId[0], A);
     }
 
     private void Exercise2()
     {
         TurnOfVectors();
-        Vector3Debugger.TurnOnVector(vectorId[0]);
-        Vector3Debugger.TurnOnVector(vectorId[1]);
-        Vector3Debugger.TurnOnVector(vectorId[2]);
+        TurnOnVectors(3);
 
-        My_Quaternion rotation = My_Quaternion.Euler(0, angle, 0);
+        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, Vec3.Up);
         A = rotation * A;
         B = rotation * B;
         C = rotation * C;
-
-        Vector3Debugger.UpdatePosition(vectorId[0], A);
-        Vector3Debugger.UpdatePosition(vectorId[1], A, B);
-        Vector3Debugger.UpdatePosition(vectorId[2], B, C);
     }
 
     private void Exercise3()
     {
         TurnOfVectors();
-        Vector3Debugger.TurnOnVector(vectorId[0]);
-        Vector3Debugger.TurnOnVector(vectorId[1]);
-        Vector3Debugger.TurnOnVector(vectorId[2]);
-        Vector3Debugger.TurnOnVector(vectorId[3]);
+        TurnOnVectors(4);
 
-        axis = D - (Vec3)transform.position;
-        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, axis);
+        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, D);
         A = rotation * A;
 
-        rotation = My_Quaternion.AngleAxis(angle, axis);
+        rotation = My_Quaternion.Inverse(rotation);
+        rotation = My_Quaternion.AngleAxis(angle, D);
         C = rotation * C;
-
-        Vector3Debugger.UpdatePosition(vectorId[0], A);
-        Vector3Debugger.UpdatePosition(vectorId[1], A, B);
-        Vector3Debugger.UpdatePosition(vectorId[2], B, C);
-        Vector3Debugger.UpdatePosition(vectorId[3], C, D);
     }
 
     private void UpdateExercises()
     {
+        if (lastUsed != (int)exercise)
+        {
+            SetInitValues();
+            lastUsed = (int)exercise;
+        }
+
         switch ((int)exercise)
         {
             case 1:
@@ -123,7 +111,7 @@ public class Quaternion_Exercises : MonoBehaviour
                 }
         }
 
-        
+        UpdateVectors();
     }
 
     private void SetInitValues()
@@ -141,6 +129,22 @@ public class Quaternion_Exercises : MonoBehaviour
         D.x = 20;
         D.y = 20;
 
+    }
+
+    private void TurnOnVectors(int qnty)
+    {
+        for (int i = 0; i < qnty; i ++)
+        {
+            Vector3Debugger.TurnOnVector(vectorId[i]);
+        }
+    }
+
+    private void UpdateVectors()
+    {
+        Vector3Debugger.UpdatePosition(vectorId[0], A);
+        Vector3Debugger.UpdatePosition(vectorId[1], A, B);
+        Vector3Debugger.UpdatePosition(vectorId[2], B, C);
+        Vector3Debugger.UpdatePosition(vectorId[3], C, D);
     }
 
     private void TurnOfVectors()
