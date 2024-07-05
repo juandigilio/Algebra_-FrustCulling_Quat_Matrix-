@@ -20,6 +20,7 @@ public class Quaternion_Exercises : MonoBehaviour
     private Vec3 B = new Vec3();
     private Vec3 C = new Vec3();
     private Vec3 D = new Vec3();
+    private Vec3 axis = new Vec3();
 
 
     [SerializeField] private float angle;
@@ -45,6 +46,11 @@ public class Quaternion_Exercises : MonoBehaviour
     void FixedUpdate()
     {
         UpdateExercises();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, axis);
     }
 
     private void Exercise1()
@@ -83,11 +89,11 @@ public class Quaternion_Exercises : MonoBehaviour
         Vector3Debugger.TurnOnVector(vectorId[2]);
         Vector3Debugger.TurnOnVector(vectorId[3]);
 
-        Vec3 newAxis = D - B;
-        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, newAxis);
+        axis = D - (Vec3)transform.position;
+        My_Quaternion rotation = My_Quaternion.AngleAxis(angle, axis);
         A = rotation * A;
 
-        rotation = My_Quaternion.AngleAxis(angle, newAxis);
+        rotation = My_Quaternion.AngleAxis(angle, axis);
         C = rotation * C;
 
         Vector3Debugger.UpdatePosition(vectorId[0], A);

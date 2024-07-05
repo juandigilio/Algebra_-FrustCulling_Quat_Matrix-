@@ -432,10 +432,10 @@ namespace System.Numerics
             );
         }
 
-        //public static My_Quaternion Multiply(My_Quaternion value1, float value2)
-        //{
-        //    return value1 * value2;
-        //}
+        public static My_Quaternion Multiply(My_Quaternion value1, float value2)
+        {
+            return value1 * value2;
+        }
 
         public static My_Quaternion Negate(My_Quaternion value)
         {
@@ -468,6 +468,7 @@ namespace System.Numerics
 
         public static My_Quaternion AngleAxis(float angle, Vec3 newAxis)
         {
+            newAxis.Normalize();
             float halfAngle = angle * Mathf.Deg2Rad * 0.5f;
             float s = Mathf.Sin(halfAngle);
 
@@ -528,10 +529,10 @@ namespace System.Numerics
             return value1 - value2;
         }
 
-        //public override readonly bool Equals([NotNullWhen(true)] object? obj)
-        //{
-        //    return (obj is My_Quaternion other) && Equals(other);
-        //}
+        public override readonly bool Equals( object obj)
+        {
+            return (obj is My_Quaternion other) && Equals(other);
+        }
 
         public readonly bool Equals(My_Quaternion other)
         {
