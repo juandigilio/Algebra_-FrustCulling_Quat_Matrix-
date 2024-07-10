@@ -1,9 +1,8 @@
 using MathDebbuger;
 using UnityEngine;
 using CustomMath;
-using System.Numerics;
 using System.Collections.Generic;
-//using Quaternion = UnityEngine.Quaternion;
+
 
 public enum Quat_Exercices
 {
@@ -80,7 +79,7 @@ public class Quaternion_Exercises : MonoBehaviour
         A = rotation * A;
 
         rotation = My_Quaternion.Inverse(rotation);
-        rotation = My_Quaternion.AngleAxis(angle, D);
+        //rotation = My_Quaternion.AngleAxis(angle, D);
         C = rotation * C;
     }
 
