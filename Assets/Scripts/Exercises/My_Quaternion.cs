@@ -1,6 +1,6 @@
-using CustomMath;
-using UnityEngine;
 using System;
+using UnityEngine;
+using CustomMath;
 
 public struct My_Quaternion
 {
@@ -477,43 +477,51 @@ public struct My_Quaternion
         float m21 = tempForward.y;
         float m22 = tempForward.z;
 
-        My_Quaternion result;
-        float factor;
+        Vector4 column0 = new Vector4(m00, m10, m20, 0);
+        Vector4 column1 = new Vector4(m01, m11, m21, 0);
+        Vector4 column2 = new Vector4(m02, m12, m22, 0);
+        Vector4 column3 = Vector4.zero;
 
-        if (m22 < 0)
-        {
-            if (m00 > m11)
-            {
-                factor = 1 + m00 - m11 - m22;
+        My_Matrix4x4 result = new My_Matrix4x4(column0, column1, column2, column3);
 
-                result = new My_Quaternion(factor, m10 + m01, m20 + m02, m12 - m21);
-            }
-            else
-            {
-                factor = 1 - m00 + m11 - m22;
+        return result.Rotation;
+        //My_Quaternion result;
+        //float factor;
 
-                result = new My_Quaternion(m01 + m10, factor, m12 + m21, m20 - m02);
-            }
-        }
-        else
-        {
-            if (m00 < -m11)
-            {
-                factor = 1 - m00 - m11 + m22;
+        //if (m22 < 0)
+        //{
+        //    if (m00 > m11)
+        //    {
+        //        factor = 1 + m00 - m11 - m22;
 
-                result = new My_Quaternion(m20 + m02, m12 + m21, factor, m01 - m10);
-            }
-            else
-            {
-                factor = 1 + m00 + m11 + m22;
+        //        result = new My_Quaternion(factor, m10 + m01, m20 + m02, m12 - m21);
+        //    }
+        //    else
+        //    {
+        //        factor = 1 - m00 + m11 - m22;
 
-                result = new My_Quaternion(m12 - m21, m20 - m02, m01 - m10, factor);
-            }
-        }
+        //        result = new My_Quaternion(m01 + m10, factor, m12 + m21, m20 - m02);
+        //    }
+        //}
+        //else
+        //{
+        //    if (m00 < -m11)
+        //    {
+        //        factor = 1 - m00 - m11 + m22;
 
-        result *= 0.5f / Mathf.Sqrt(factor);
+        //        result = new My_Quaternion(m20 + m02, m12 + m21, factor, m01 - m10);
+        //    }
+        //    else
+        //    {
+        //        factor = 1 + m00 + m11 + m22;
 
-        return result;
+        //        result = new My_Quaternion(m12 - m21, m20 - m02, m01 - m10, factor);
+        //    }
+        //}
+
+        //result *= 0.5f / Mathf.Sqrt(factor);
+
+        //return result;
     }
 
     public static My_Quaternion LookRotation(Vec3 forward)
