@@ -52,8 +52,6 @@ public struct My_Quaternion
         }
     }
 
-
-
     public My_Quaternion(float x, float y, float z, float w)
     {
         this.x = x;
@@ -69,7 +67,6 @@ public struct My_Quaternion
         z = vectorPart.z;
         w = scalarPart;
     }
-
 
     public static My_Quaternion operator +(My_Quaternion q1, My_Quaternion q2)
     {
@@ -118,6 +115,7 @@ public struct My_Quaternion
         result.y = q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z;
         result.z = q1.w * q2.z + q1.z * q2.w + q1.x * q2.y - q1.y * q2.x;
         result.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
+        //tabla de multiplicacion de quat
 
         return result;
     }
@@ -133,9 +131,25 @@ public struct My_Quaternion
         return result;
     }
 
-    //public static My_Quaternion operator /(My_Quaternion value1, My_Quaternion value2)
-    //{
-    //}
+    public static Vec3 operator *(My_Quaternion rotation, Vec3 point)
+    {
+        My_Quaternion pureVectorQuaternion = new My_Quaternion(point, 0);
+        //cnjugated para transformar correctamente el quaternion de vuelta al espacio original
+        My_Quaternion appliedPureQuaternion = rotation * pureVectorQuaternion * Conjugated(rotation);
+
+        return new Vec3(appliedPureQuaternion.x, appliedPureQuaternion.y, appliedPureQuaternion.z);
+    }
+
+    public static My_Quaternion operator /(My_Quaternion value1, My_Quaternion value2)
+    {
+        // Calcula el conjugado de value2
+        My_Quaternion conjugate = Conjugated(value2);
+
+        // Divide value1 por el cuadrado de la magnitud de value2
+        My_Quaternion result = value1 * conjugate / value2.SquaredMagnitude();
+
+        return result;
+    }
 
     public static My_Quaternion operator /(My_Quaternion q, float scalar)
     {
@@ -164,6 +178,50 @@ public struct My_Quaternion
         }
     }
 
+    public My_Quaternion Normalized
+    {
+        get
+        {
+            My_Quaternion result = this;
+            result.Normalize();
+            return result;
+        }
+    }
+
+    public Vec3 EulerAngles
+    {
+        get
+        {
+            float sinrCosp = 2 * (w * x + y * z);
+            float cosrCosp = 1 - 2 * (x * x + y * y);
+            float angleX = Mathf.Atan2(sinrCosp, cosrCosp);
+
+            float sinp = Mathf.Sqrt(1 + 2 * (w * y - x * z));
+            float cosp = Mathf.Sqrt(1 - 2 * (w * y - x * z));
+            float angleY = 2 * Mathf.Atan2(sinp, cosp) - Mathf.Rad2Deg;
+
+            float sinyCosp = 2 * (w * z + x * y);
+            float cosyCosp = 1 - 2 * (y * y + z * z);
+            float angleZ = Mathf.Atan2(sinyCosp, cosyCosp);
+
+            return new Vector3(angleX, angleY, angleZ);
+        }
+
+        set
+        {
+            My_Quaternion q = Euler(value);
+            Set(q.x, q.y, q.z, q.w);
+        }
+    }
+
+    public void Set(float newX, float newY, float newZ, float newW)
+    {
+        x = newX;
+        y = newY;
+        z = newZ;
+        w = newW;
+    }
+
     public override bool Equals(object other)
     {
         if (!(other is My_Quaternion))
@@ -179,14 +237,11 @@ public struct My_Quaternion
         return x.Equals(other.x) && y.Equals(other.y) && z.Equals(other.z) && w.Equals(other.w);
     }
 
-    public void Set(float newX, float newY, float newZ, float newW)
+    public static bool IsEqualUsingDot(float dotValue)
     {
-        x = newX;
-        y = newY;
-        z = newZ;
-        w = newW;
+        return dotValue > 1 - float.Epsilon && dotValue < 1 + float.Epsilon;
     }
-
+    
     public void Normalize()
     {
         //La magnitud es igual a norma  (magntitud de q = r^2(x^2 + y^2 + z^2 + w^2))
@@ -203,17 +258,6 @@ public struct My_Quaternion
             z /= magnitude;
             w /= magnitude;
         }
-    }
-
-    public Vec3 NormalizeAngles(Vec3 angles)
-    {
-        Vec3 result = new Vec3();
-
-        result.x = NormalizeAngle(angles.x);
-        result.y = NormalizeAngle(angles.y);
-        result.z =NormalizeAngle(angles.z);
-
-        return result;
     }
 
     public float NormalizeAngle(float angle)
@@ -233,9 +277,25 @@ public struct My_Quaternion
         return normalizedAngle;
     }
 
+    public Vec3 NormalizeAngles(Vec3 angles)
+    {
+        Vec3 result = new Vec3();
+
+        result.x = NormalizeAngle(angles.x);
+        result.y = NormalizeAngle(angles.y);
+        result.z =NormalizeAngle(angles.z);
+
+        return result;
+    }
+
     public float SquaredMagnitude()
     {
         return x * x + y * y + z * z + w * w;
+    }
+
+    public static My_Quaternion Inverse(My_Quaternion q)
+    {
+        return Conjugated(q) / q.SquaredMagnitude();
     }
 
     public static float Dot(My_Quaternion q1, My_Quaternion q2)
@@ -250,6 +310,22 @@ public struct My_Quaternion
         return new My_Quaternion(-q.x, -q.y, -q.z, q.w);
     }
 
+    public static float Angle(My_Quaternion q1, My_Quaternion q2)
+    {
+        float dotValue = Dot(q1.Normalized, q2.Normalized);
+
+        if (IsEqualUsingDot(dotValue))
+        {
+            return 0f;
+        }
+
+        float absValue = Mathf.Abs(dotValue);
+
+        return Mathf.Acos(absValue) * 2.0f * Mathf.Rad2Deg;
+        //acos es la inversa al coseno, me da el angulo para el coseno requerido (me da el angulo en radianes)
+        //El producto punto de dos quaternions normalizados es el coseno de la mitad del ángulo entre ellos
+    }
+
     public static My_Quaternion AngleAxis(float angle, Vec3 axis)
     {
         // = cos angle / 2 , axis normalizado * sen angle / 2
@@ -257,8 +333,8 @@ public struct My_Quaternion
         Vec3 vectorialPart = axis.normalized;
         float inRadians = Mathf.Deg2Rad * angle;
 
-        vectorialPart *= Mathf.Sin(angle * 0.5f);
-        float scalarPart = Mathf.Cos(angle * 0.5f);
+        vectorialPart *= Mathf.Sin(inRadians * 0.5f);
+        float scalarPart = Mathf.Cos(inRadians * 0.5f);
 
         return new My_Quaternion(vectorialPart, scalarPart);
     }
@@ -273,9 +349,116 @@ public struct My_Quaternion
         return AngleAxis(angle, axis);
     }
 
+    public void SetFromToRotation(Vec3 fromDirection, Vec3 toDirection)
+    {
+        My_Quaternion result = FromToRotation(fromDirection, toDirection).Normalized;
+
+        x = result.x;
+        y = result.y;
+        z = result.z;
+        w = result.w;
+    }
+
+    public static My_Quaternion LerpUnclamped(My_Quaternion q1, My_Quaternion q2, float t)
+    {
+        My_Quaternion result = Identity;
+
+        if (Dot(q1, q2) >= float.Epsilon)
+        {
+            result.x = q1.x + (q2.x - q1.x) * t;
+            result.y = q1.y + (q2.y - q1.y) * t;
+            result.z = q1.z + (q2.z - q1.z) * t;
+            result.w = q1.w + (q2.w - q1.w) * t;
+        }
+        else
+        {
+            result.x = q1.x - (q2.x - q1.x) * t;
+            result.y = q1.y - (q2.y - q1.y) * t;
+            result.z = q1.z - (q2.z - q1.z) * t;
+            result.w = q1.w - (q2.w - q1.w) * t;
+        }
+
+        return result;
+    }
+
+    public static My_Quaternion Lerp(My_Quaternion q1, My_Quaternion q2, float t)
+    {
+        if (t < 0)
+        {
+            t = 0;
+        }
+        else if (t > 1)
+        {
+            t = 1;
+        }
+
+        return LerpUnclamped(q1, q2, t);
+    }
+
+    public static My_Quaternion SlerpUnclamped(My_Quaternion q1, My_Quaternion q2, float t)
+    {
+        My_Quaternion normalizedQ1 = q1.Normalized;
+        My_Quaternion normalizedQ2 = q2.Normalized;
+
+        float cosOmega = Dot(normalizedQ1, normalizedQ2);
+
+        //saco el abs porque quiero el valor del anuglo no me importa la direccion
+        cosOmega = Mathf.Abs(cosOmega);
+
+        float coeff1;
+        float coeff2;
+
+        //hago Acos para pasar del coseno omega a omega que es el angulo de ese coseno
+        float omega = Mathf.Acos(cosOmega);
+
+        //                                      lo divido por el seno de omega para normalizarlo
+        coeff1 = Mathf.Sin((1 - t) * omega) / Mathf.Sin(omega);
+
+        //          busco el camino mas corto
+        coeff2 = (cosOmega < 0.0f ? -1 : 1) * (Mathf.Sin(t * omega) / Mathf.Sin(omega));
+
+
+        My_Quaternion result = new My_Quaternion();
+        result.x = coeff1 * normalizedQ1.x + coeff2 * normalizedQ2.x;
+        result.y = coeff1 * normalizedQ1.y + coeff2 * normalizedQ2.y;
+        result.z = coeff1 * normalizedQ1.z + coeff2 * normalizedQ2.z;
+        result.w = coeff1 * normalizedQ1.w + coeff2 * normalizedQ2.w;
+
+        return result;
+    }
+
+    public static My_Quaternion Slerp(My_Quaternion q1, My_Quaternion q2, float t)
+    {
+        if (t < 0)
+        {
+            t = 0;
+        }
+        else if (t > 1)
+        {
+            t = 1;
+        }
+
+        return SlerpUnclamped(q1, q2, t);
+    }
+
+    public static My_Quaternion RotateTowards(My_Quaternion from, My_Quaternion to, float maxDegreesDelta)
+    {
+        float angle = Angle(from, to);
+
+        if (angle == 0.0f)
+        {
+            return to;
+        }
+
+        return SlerpUnclamped(from, to, Mathf.Min(1.0f, maxDegreesDelta / angle));
+    }
+
     public static My_Quaternion LookRotation(Vec3 forward, Vec3 upwards)
     {
-        if (forward.magnitude <= Epsilon) return Identity;
+        if (forward.magnitude <= Epsilon)
+        {
+            return Identity;
+        }
 
         Vec3 tempForward = forward.normalized;
         Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
@@ -333,4 +516,54 @@ public struct My_Quaternion
         return result;
     }
 
+    public static My_Quaternion LookRotation(Vec3 forward)
+    {
+        return LookRotation(forward, Vec3.Up);
+    }
+
+    public void SetLookRotation(Vec3 view, Vec3 up)
+    {
+        My_Quaternion lookRotationQuaternion = LookRotation(view, up);
+
+        x = lookRotationQuaternion.x;
+        y = lookRotationQuaternion.y;
+        z = lookRotationQuaternion.z;
+    }
+
+    public void SetLookRotation(Vec3 view)
+    {
+        Vec3 up = Vec3.Up;
+        SetLookRotation(view, up);
+    }
+
+    public static My_Quaternion Euler(float x, float y, float z)
+    {
+        float sin;
+        float cos;
+        My_Quaternion qX;
+        My_Quaternion qY;
+        My_Quaternion qZ;
+        My_Quaternion result = Identity;
+
+        sin = Mathf.Sin(Mathf.Deg2Rad * x * 0.5f);
+        cos = Mathf.Cos(Mathf.Deg2Rad * x * 0.5f);
+        qX = new My_Quaternion(sin, 0, 0, cos);
+
+        sin = Mathf.Sin(Mathf.Deg2Rad * y * 0.5f);
+        cos = Mathf.Cos(Mathf.Deg2Rad * y * 0.5f);
+        qY = new My_Quaternion(0, sin, 0, cos);
+
+        sin = Mathf.Sin(Mathf.Deg2Rad * z * 0.5f);
+        cos = Mathf.Cos(Mathf.Deg2Rad * z * 0.5f);
+        qZ = new My_Quaternion(0, 0, sin, cos);
+
+        result = (qX * qY) * qZ;
+
+        return result;
+    }
+
+    public static My_Quaternion Euler(Vec3 euler)
+    {
+        return Euler(euler.x, euler.y, euler.z);
+    }
 }
