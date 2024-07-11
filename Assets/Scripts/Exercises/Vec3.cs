@@ -115,8 +115,8 @@ namespace CustomMath
 
         public static Vec3 operator *(My_Quaternion rotation, Vec3 vec)
         {
-            Vec3 u = new Vec3(rotation.X, rotation.Y, rotation.Z);
-            float s = rotation.W;
+            Vec3 u = new Vec3(rotation.x, rotation.y, rotation.z);
+            float s = rotation.w;
 
             Vec3 result = 2.0f * Vec3.Dot(u, vec) * u
                 + (s * s - Vec3.Dot(u, u)) * vec
