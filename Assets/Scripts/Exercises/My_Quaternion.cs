@@ -4,7 +4,7 @@ using System;
 
 public struct My_Quaternion
 {
-    private const float SlerpEpsilon = 1e-6f;
+    private const float Epsilon = 1e-6f;
 
     public float x;
     public float y;
@@ -187,11 +187,6 @@ public struct My_Quaternion
         w = newW;
     }
 
-    public float SquaredMagnitude()
-    {
-        return x * x + y * y + z * z + w * w;
-    }
-
     public void Normalize()
     {
         //La magnitud es igual a norma  (magntitud de q = r^2(x^2 + y^2 + z^2 + w^2))
@@ -208,6 +203,39 @@ public struct My_Quaternion
             z /= magnitude;
             w /= magnitude;
         }
+    }
+
+    public Vec3 NormalizeAngles(Vec3 angles)
+    {
+        Vec3 result = new Vec3();
+
+        result.x = NormalizeAngle(angles.x);
+        result.y = NormalizeAngle(angles.y);
+        result.z =NormalizeAngle(angles.z);
+
+        return result;
+    }
+
+    public float NormalizeAngle(float angle)
+    {
+        float normalizedAngle = angle;
+
+        while (normalizedAngle > 360.0f)
+        {
+            normalizedAngle -= 360.0f;
+        }
+
+        while (normalizedAngle < 0.0f)
+        {
+            normalizedAngle += 360.0f;
+        }
+
+        return normalizedAngle;
+    }
+
+    public float SquaredMagnitude()
+    {
+        return x * x + y * y + z * z + w * w;
     }
 
     public static float Dot(My_Quaternion q1, My_Quaternion q2)
@@ -234,4 +262,75 @@ public struct My_Quaternion
 
         return new My_Quaternion(vectorialPart, scalarPart);
     }
+
+    public static My_Quaternion FromToRotation(Vec3 fromDirection, Vec3 toDirection)
+    {
+        //calculo el eje de rotacion
+        Vec3 axis = Vec3.Cross(fromDirection, toDirection);
+        //calculo el angulo
+        float angle = Vec3.Angle(fromDirection, toDirection);
+        //ya tengo la parte vectorial y la parte escalar
+        return AngleAxis(angle, axis);
+    }
+
+    public static My_Quaternion LookRotation(Vec3 forward, Vec3 upwards)
+    {
+        if (forward.magnitude <= Epsilon) return Identity;
+
+        Vec3 tempForward = forward.normalized;
+        Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
+        Vec3 tempUp = upwards.normalized;
+
+        //asigno los vectores a una matriz 3x3
+        float m00 = tempRight.x;
+        float m01 = tempRight.y;
+        float m02 = tempRight.z;
+
+        float m10 = tempUp.x;
+        float m11 = tempUp.y;
+        float m12 = tempUp.z;
+
+        float m20 = tempForward.x;
+        float m21 = tempForward.y;
+        float m22 = tempForward.z;
+
+        My_Quaternion result;
+        float factor;
+
+        if (m22 < 0)
+        {
+            if (m00 > m11)
+            {
+                factor = 1 + m00 - m11 - m22;
+
+                result = new My_Quaternion(factor, m10 + m01, m20 + m02, m12 - m21);
+            }
+            else
+            {
+                factor = 1 - m00 + m11 - m22;
+
+                result = new My_Quaternion(m01 + m10, factor, m12 + m21, m20 - m02);
+            }
+        }
+        else
+        {
+            if (m00 < -m11)
+            {
+                factor = 1 - m00 - m11 + m22;
+
+                result = new My_Quaternion(m20 + m02, m12 + m21, factor, m01 - m10);
+            }
+            else
+            {
+                factor = 1 + m00 + m11 + m22;
+
+                result = new My_Quaternion(m12 - m21, m20 - m02, m01 - m10, factor);
+            }
+        }
+
+        result *= 0.5f / Mathf.Sqrt(factor);
+
+        return result;
+    }
+
 }
