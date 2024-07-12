@@ -192,6 +192,7 @@ public struct My_Quaternion
     {
         get
         {
+            //devuelvo un vec3 con los angulos de rotacion en cada eje
             float sinrCosp = 2 * (w * x + y * z);
             float cosrCosp = 1 - 2 * (x * x + y * y);
             float angleX = Mathf.Atan2(sinrCosp, cosrCosp);
@@ -241,13 +242,23 @@ public struct My_Quaternion
     {
         return dotValue > 1 - float.Epsilon && dotValue < 1 + float.Epsilon;
     }
+
+    public float SquaredMagnitude()
+    {
+        return x * x + y * y + z * z + w * w;
+    }
+
+    public float Magnitude()
+    {
+        return Mathf.Sqrt(SquaredMagnitude());
+    }
     
     public void Normalize()
     {
         //La magnitud es igual a norma  (magntitud de q = r^2(x^2 + y^2 + z^2 + w^2))
-        float magnitude = Mathf.Sqrt(x * x + y * y + z * z + w * w);
+        float magnitude = Magnitude();
 
-        if (magnitude >= 0)
+        if (magnitude < Epsilon)
         {
             this = Identity; //magnitud 0 devuelvo quat identity que es 0,0,0,1
         }
@@ -286,11 +297,6 @@ public struct My_Quaternion
         result.z =NormalizeAngle(angles.z);
 
         return result;
-    }
-
-    public float SquaredMagnitude()
-    {
-        return x * x + y * y + z * z + w * w;
     }
 
     public static My_Quaternion Inverse(My_Quaternion q)
@@ -363,22 +369,23 @@ public struct My_Quaternion
     {
         My_Quaternion result = Identity;
 
-        if (Dot(q1, q2) >= float.Epsilon)
+        float timeLeft = 1 - t;
+
+        if (Dot(q1, q2) >= 0)
         {
-            result.x = q1.x + (q2.x - q1.x) * t;
-            result.y = q1.y + (q2.y - q1.y) * t;
-            result.z = q1.z + (q2.z - q1.z) * t;
-            result.w = q1.w + (q2.w - q1.w) * t;
+            result.x = (timeLeft * q1.x) + (t * q2.x);
+            result.y = (timeLeft * q1.y) + (t * q2.y);
+            result.z = (timeLeft * q1.z) + (t * q2.z);
+            result.w = (timeLeft * q1.w) + (t * q2.w);
         }
         else
         {
-            result.x = q1.x - (q2.x - q1.x) * t;
-            result.y = q1.y - (q2.y - q1.y) * t;
-            result.z = q1.z - (q2.z - q1.z) * t;
-            result.w = q1.w - (q2.w - q1.w) * t;
+            result.x = (timeLeft * q1.x) - (t * q2.x);
+            result.y = (timeLeft * q1.y) - (t * q2.y);
+            result.z = (timeLeft * q1.z) - (t * q2.z);
+            result.w = (timeLeft * q1.w) - (t * q2.w);
         }
-
-        return result;
+        return result.Normalized;
     }
 
     public static My_Quaternion Lerp(My_Quaternion q1, My_Quaternion q2, float t)
@@ -405,6 +412,7 @@ public struct My_Quaternion
         //saco el abs porque quiero el valor del anuglo no me importa la direccion
         cosOmega = Mathf.Abs(cosOmega);
 
+
         float coeff1;
         float coeff2;
 
@@ -418,6 +426,7 @@ public struct My_Quaternion
         coeff2 = (cosOmega < 0.0f ? -1 : 1) * (Mathf.Sin(t * omega) / Mathf.Sin(omega));
 
 
+        //multiplico cada quat por la incidencia que tiene
         My_Quaternion result = new My_Quaternion();
         result.x = coeff1 * normalizedQ1.x + coeff2 * normalizedQ2.x;
         result.y = coeff1 * normalizedQ1.y + coeff2 * normalizedQ2.y;
@@ -455,11 +464,6 @@ public struct My_Quaternion
 
     public static My_Quaternion LookRotation(Vec3 forward, Vec3 upwards)
     {
-        if (forward.magnitude <= Epsilon)
-        {
-            return Identity;
-        }
-
         Vec3 tempForward = forward.normalized;
         Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
         Vec3 tempUp = upwards.normalized;
@@ -548,21 +552,28 @@ public struct My_Quaternion
     {
         float sin;
         float cos;
+
         My_Quaternion qX;
         My_Quaternion qY;
         My_Quaternion qZ;
+
+        float xRadians = Mathf.Deg2Rad * x;
+        float yRadians = Mathf.Deg2Rad * y;
+        float zRadians = Mathf.Deg2Rad * z;
+
         My_Quaternion result = Identity;
 
-        sin = Mathf.Sin(Mathf.Deg2Rad * x * 0.5f);
-        cos = Mathf.Cos(Mathf.Deg2Rad * x * 0.5f);
+        //creo el quat para cada eje con su parte real y su parte imaginaria
+        sin = Mathf.Sin(xRadians * 0.5f);
+        cos = Mathf.Cos(xRadians * 0.5f);
         qX = new My_Quaternion(sin, 0, 0, cos);
 
-        sin = Mathf.Sin(Mathf.Deg2Rad * y * 0.5f);
-        cos = Mathf.Cos(Mathf.Deg2Rad * y * 0.5f);
+        sin = Mathf.Sin(yRadians * 0.5f);
+        cos = Mathf.Cos(yRadians * 0.5f);
         qY = new My_Quaternion(0, sin, 0, cos);
 
-        sin = Mathf.Sin(Mathf.Deg2Rad * z * 0.5f);
-        cos = Mathf.Cos(Mathf.Deg2Rad * z * 0.5f);
+        sin = Mathf.Sin(zRadians * 0.5f);
+        cos = Mathf.Cos(zRadians * 0.5f);
         qZ = new My_Quaternion(0, 0, sin, cos);
 
         result = (qX * qY) * qZ;

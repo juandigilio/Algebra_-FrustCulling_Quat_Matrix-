@@ -168,8 +168,8 @@ MonoBehaviour:
   m_Script: {fileID: 1731222253, guid: 93004687164111a40ae3b3f1574df746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ejercicio: 0
-  angle: 0
+  ejercicio: 2
+  angle: 1
 --- !u!114 &458611333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,8 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6749a07e402ef6498604677141cd029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exercise: 1
-  angle: 0
+  exercise: 3
+  angle: 1.4
 --- !u!1 &1810295061
 GameObject:
   m_ObjectHideFlags: 0

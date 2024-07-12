@@ -337,7 +337,7 @@ public class My_Matrix4x4
             My_Quaternion result;
             float factor;
             //
-            if (M22 < 0)
+            if (rm22 < 0)
             {
                 if (rm00 > rm11)
                 {
@@ -535,8 +535,6 @@ public class My_Matrix4x4
         return new My_Matrix4x4(column0, column1, column2, column3);
     }
 
-
-
     /// <summary>
     /// //////////////////////
     /// </summary>
@@ -544,6 +542,9 @@ public class My_Matrix4x4
     /// <returns></returns>
     public static My_Matrix4x4 Rotate(My_Quaternion q)
     {
+        //toma un quat y devuelve una matriz que representa la rotacion correspondiente
+
+
         float x = q.x * 2.0F;
         float y = q.y * 2.0F;
         float z = q.z * 2.0F;
@@ -556,6 +557,11 @@ public class My_Matrix4x4
         float wx = q.w * x;
         float wy = q.w * y;
         float wz = q.w * z;
+
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
 
         My_Matrix4x4 result = new My_Matrix4x4();
         result.M00 = 1.0f - (yy + zz);
