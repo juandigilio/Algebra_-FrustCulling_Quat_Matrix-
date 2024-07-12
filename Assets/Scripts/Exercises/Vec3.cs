@@ -113,18 +113,6 @@ namespace CustomMath
             return v3 * scalar;
         }
 
-        //public static Vec3 operator *(My_Quaternion rotation, Vec3 vec)
-        //{
-        //    Vec3 u = new Vec3(rotation.x, rotation.y, rotation.z);
-        //    float s = rotation.w;
-
-        //    Vec3 result = 2.0f * Vec3.Dot(u, vec) * u
-        //        + (s * s - Vec3.Dot(u, u)) * vec
-        //        + 2.0f * s * Vec3.Cross(u, vec);
-
-        //    return result;
-        //}
-
         public static Vec3 operator /(Vec3 v3, float scalar)
         {
             return new Vec3(v3.x / scalar, v3.y / scalar, v3.z / scalar);

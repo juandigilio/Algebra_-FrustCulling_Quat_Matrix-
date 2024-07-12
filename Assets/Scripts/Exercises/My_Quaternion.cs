@@ -372,7 +372,7 @@ public struct My_Quaternion
         float sinHalfAngle = Mathf.Sqrt(1.0f - w * w);
 
         // Si el valor del seno es muy pequeño, usar un eje arbitrario
-        if (sinHalfAngle < 0.0001)
+        if (sinHalfAngle < Epsilon)
         {
             axis = new Vec3(1, 0, 0);
         }
@@ -530,48 +530,11 @@ public struct My_Quaternion
         Vector4 column0 = new Vector4(m00, m10, m20, 0);
         Vector4 column1 = new Vector4(m01, m11, m21, 0);
         Vector4 column2 = new Vector4(m02, m12, m22, 0);
-        Vector4 column3 = Vector4.zero;
+        Vector4 column3 = new Vector4(0, 0, 0, 1);
 
         My_Matrix4x4 result = new My_Matrix4x4(column0, column1, column2, column3);
 
         return result.Rotation;
-        //My_Quaternion result;
-        //float factor;
-
-        //if (m22 < 0)
-        //{
-        //    if (m00 > m11)
-        //    {
-        //        factor = 1 + m00 - m11 - m22;
-
-        //        result = new My_Quaternion(factor, m10 + m01, m20 + m02, m12 - m21);
-        //    }
-        //    else
-        //    {
-        //        factor = 1 - m00 + m11 - m22;
-
-        //        result = new My_Quaternion(m01 + m10, factor, m12 + m21, m20 - m02);
-        //    }
-        //}
-        //else
-        //{
-        //    if (m00 < -m11)
-        //    {
-        //        factor = 1 - m00 - m11 + m22;
-
-        //        result = new My_Quaternion(m20 + m02, m12 + m21, factor, m01 - m10);
-        //    }
-        //    else
-        //    {
-        //        factor = 1 + m00 + m11 + m22;
-
-        //        result = new My_Quaternion(m12 - m21, m20 - m02, m01 - m10, factor);
-        //    }
-        //}
-
-        //result *= 0.5f / Mathf.Sqrt(factor);
-
-        //return result;
     }
 
     public static My_Quaternion LookRotation(Vec3 forward)
@@ -622,7 +585,7 @@ public struct My_Quaternion
         cos = Mathf.Cos(zRadians * 0.5f);
         qZ = new My_Quaternion(0, 0, sin, cos);
 
-        result = (qX * qY) * qZ;
+        result = (qY * qX) * qZ;
 
         return result;
     }

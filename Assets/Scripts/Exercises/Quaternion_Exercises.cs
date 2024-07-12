@@ -79,7 +79,6 @@ public class Quaternion_Exercises : MonoBehaviour
         A = rotation * A;
 
         rotation = My_Quaternion.Inverse(rotation);
-        //rotation = My_Quaternion.AngleAxis(angle, D);
         C = rotation * C;
     }
 

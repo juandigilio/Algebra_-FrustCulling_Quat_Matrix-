@@ -128,6 +128,11 @@ public class My_Matrix4x4
 
     public static Vector4 operator *(My_Matrix4x4 m, Vector4 vector)
     {
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
+
         Vector4 result = new Vector4();
         result.x = m.M00 * vector.x + m.M01 * vector.y + m.M02 * vector.z + m.M03 * vector.w;
         result.y = m.M10 * vector.x + m.M11 * vector.y + m.M12 * vector.z + m.M13 * vector.w;
@@ -143,6 +148,12 @@ public class My_Matrix4x4
         //M10, M11, M12, M13
         //M20, M21, M22, M23
         //M30, M31, M32, M33
+
+        ///////////////////////////////
+        ////////////////////////
+        //aca tengo que llamar mejor a la funcion matrix * vec4 avivate juan!
+        //////////
+        ///
 
         Vector4 column0 = new Vector4();
         column0.x = a.M00 * b.M00 + a.M01 * b.M10 + a.M02 * b.M20 + a.M03 * b.M30;
@@ -192,10 +203,10 @@ public class My_Matrix4x4
         }
     }
 
-    // la inversa es la que al multiplicar una matriz por la inversa, se obtiene la matiz identidad
-    //la inversa es la determinante de toooodos los componentes
     public My_Matrix4x4 inverse
     {
+        // la inversa es la que al multiplicar una matriz por la inversa, se obtiene la matiz identidad
+        //la inversa es la determinante de toooodos los componentes
         get
         {
             //saco el cofactor
@@ -258,6 +269,7 @@ public class My_Matrix4x4
 
     public My_Matrix4x4 transpose
     {
+        //cambio filas por columnas
         get
         {
             //M00, M01, M02, M03
@@ -319,6 +331,11 @@ public class My_Matrix4x4
 
     public My_Quaternion Rotation
     {
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
+
         //sacar la escala
         get
         {
@@ -338,6 +355,7 @@ public class My_Matrix4x4
             My_Quaternion result;
             float factor;
             //busco el componente mas significativo del quat, osea busco el elemento que sea mas grande que la mitad de la magnitud del quat
+
             if (rm22 < 0)
             {
                 if (rm00 > rm11)
@@ -368,6 +386,7 @@ public class My_Matrix4x4
                     result = new My_Quaternion(rm12 - rm21, rm20 - rm02, rm01 - rm10, factor);
                 }
             }
+
 
             result *= 0.5f / Mathf.Sqrt(factor);
 
@@ -585,6 +604,11 @@ public class My_Matrix4x4
 
     public bool ValidTRS()
     {
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
+
         return Vec3.Dot(new Vec3(M00, M10, M20), new Vec3(M01, M11, M21)) <= float.Epsilon &&
                Vec3.Dot(new Vec3(M01, M11, M21), new Vec3(M02, M12, M22)) <= float.Epsilon &&
                Vec3.Dot(new Vec3(M00, M10, M20), new Vec3(M02, M12, M22)) <= float.Epsilon;
