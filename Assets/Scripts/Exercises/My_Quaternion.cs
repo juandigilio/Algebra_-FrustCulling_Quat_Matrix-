@@ -192,20 +192,32 @@ public struct My_Quaternion
     {
         get
         {
-            //devuelvo un vec3 con los angulos de rotacion en cada eje
+            // Calculamos los componentes necesarios para los ángulos de rotación
             float sinrCosp = 2 * (w * x + y * z);
             float cosrCosp = 1 - 2 * (x * x + y * y);
             float angleX = Mathf.Atan2(sinrCosp, cosrCosp);
 
-            float sinp = Mathf.Sqrt(1 + 2 * (w * y - x * z));
-            float cosp = Mathf.Sqrt(1 - 2 * (w * y - x * z));
-            float angleY = 2 * Mathf.Atan2(sinp, cosp) - Mathf.Rad2Deg;
+            // Calculamos el ángulo Y
+            float sinp = 2 * (w * y - z * x);
+            float angleY;
 
+            if (Mathf.Abs(sinp) >= 1)
+            {
+                // Si el ángulo es ±90 grados, ajustamos para evitar Gimbal Lock
+                angleY = Mathf.PI / 2 * Mathf.Sign(sinp);
+            }
+            else
+            {
+                angleY = Mathf.Asin(sinp);
+            }
+
+            // Calculamos los componentes necesarios para el ángulo Z
             float sinyCosp = 2 * (w * z + x * y);
             float cosyCosp = 1 - 2 * (y * y + z * z);
             float angleZ = Mathf.Atan2(sinyCosp, cosyCosp);
 
-            return new Vector3(angleX, angleY, angleZ);
+            // Convertimos los ángulos de radianes a grados
+            return new Vector3(angleX * Mathf.Rad2Deg, angleY * Mathf.Rad2Deg, angleZ * Mathf.Rad2Deg);
         }
 
         set
@@ -240,7 +252,7 @@ public struct My_Quaternion
 
     public static bool IsEqualUsingDot(float dotValue)
     {
-        return dotValue > 1 - float.Epsilon && dotValue < 1 + float.Epsilon;
+        return dotValue > 1 - Epsilon && dotValue < 1 + Epsilon;
     }
 
     public float SquaredMagnitude()
@@ -343,6 +355,35 @@ public struct My_Quaternion
         float scalarPart = Mathf.Cos(inRadians * 0.5f);
 
         return new My_Quaternion(vectorialPart, scalarPart);
+    }
+
+    public void ToAngleAxis(out float angle, out Vec3 axis)
+    {
+        // Si el quat esta cerca de la identidad, devolver 0 y cualquier eje
+        if (Mathf.Abs(w) > 1.0f)
+        {
+            w = Mathf.Sign(w);
+        }
+
+        // Calculamos el ángulo
+        angle = 2.0f * Mathf.Acos(w);
+
+        // Calculamos el valor del seno del ángulo sobre 2
+        float sinHalfAngle = Mathf.Sqrt(1.0f - w * w);
+
+        // Si el valor del seno es muy pequeño, usar un eje arbitrario
+        if (sinHalfAngle < 0.0001)
+        {
+            axis = new Vec3(1, 0, 0);
+        }
+        else
+        {
+            // Si no, normalizamos el eje
+            axis = new Vec3(x, y, z) / sinHalfAngle;
+        }
+
+        // Convertimos el ángulo de radianes a grados
+        angle *= Mathf.Rad2Deg;
     }
 
     public static My_Quaternion FromToRotation(Vec3 fromDirection, Vec3 toDirection)
@@ -459,7 +500,7 @@ public struct My_Quaternion
             return to;
         }
 
-        return SlerpUnclamped(from, to, Mathf.Min(1.0f, maxDegreesDelta / angle));
+        return Slerp(from, to, (maxDegreesDelta / angle));
     }
 
     public static My_Quaternion LookRotation(Vec3 forward, Vec3 upwards)
@@ -468,6 +509,11 @@ public struct My_Quaternion
         Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
         Vec3 tempUp = upwards.normalized;
 
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
+        
         //asigno los vectores a una matriz 3x3
         float m00 = tempRight.x;
         float m01 = tempRight.y;

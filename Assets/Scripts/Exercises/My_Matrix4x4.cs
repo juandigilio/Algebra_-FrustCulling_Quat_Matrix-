@@ -192,12 +192,13 @@ public class My_Matrix4x4
         }
     }
 
-    // la iunversa es la que al multiplicar una matriz por la inversa, se obtiene la matiz identidad
+    // la inversa es la que al multiplicar una matriz por la inversa, se obtiene la matiz identidad
     //la inversa es la determinante de toooodos los componentes
     public My_Matrix4x4 inverse
     {
         get
         {
+            //saco el cofactor
             float newM00 = M12 * M23 * M31 - M13 * M22 * M31 + M13 * M21 * M32 - M11 * M23 * M32 - M12 * M21 * M33 +
                            M11 * M22 * M33;
 
@@ -336,7 +337,7 @@ public class My_Matrix4x4
 
             My_Quaternion result;
             float factor;
-            //
+            //busco el componente mas significativo del quat, osea busco el elemento que sea mas grande que la mitad de la magnitud del quat
             if (rm22 < 0)
             {
                 if (rm00 > rm11)
@@ -535,15 +536,9 @@ public class My_Matrix4x4
         return new My_Matrix4x4(column0, column1, column2, column3);
     }
 
-    /// <summary>
-    /// //////////////////////
-    /// </summary>
-    /// <param name="q"></param>
-    /// <returns></returns>
     public static My_Matrix4x4 Rotate(My_Quaternion q)
     {
         //toma un quat y devuelve una matriz que representa la rotacion correspondiente
-
 
         float x = q.x * 2.0F;
         float y = q.y * 2.0F;
@@ -602,12 +597,14 @@ public class My_Matrix4x4
 
     public Vec3 MultiplyPoint(Vec3 point)
     {
-        Vector3 vector3 = MultiplyPoint3x4(point);
+        Vec3 vector3 = MultiplyPoint3x4(point);
 
-        float num = 1f / ((float)((double)M30 * (double)point.x + (double)M31 * (double)point.y +
-                                  (double)M32 * (double)point.z) + M33);
-        vector3.x = num;
-        vector3.y = num;
+        // Calcula el factor de normalización usando el cuarto componente de la matriz y el vector de entrada
+        float num = 1f / (M30 * point.x + M31 * point.y + M32 * point.z + M33);
+
+        // Ajusta cada componente del vector resultante utilizando el factor de normalización
+        vector3.x *= num;
+        vector3.y *= num;
         vector3.z *= num;
 
         return vector3;
@@ -615,6 +612,12 @@ public class My_Matrix4x4
 
     public Vec3 MultiplyPoint3x4(Vec3 point)
     {
+        //M00, M01, M02, M03
+        //M10, M11, M12, M13
+        //M20, M21, M22, M23
+        //M30, M31, M32, M33
+
+        //aplica la matriz TRS a un vec3
         float x = (M00 * point.x + M01 * point.y + M02 * point.z) + M03;
         float y = (M10 * point.x + M11 * point.y + M12 * point.z) + M13;
         float z = (M20 * point.x + M21 * point.y + M22 * point.z) + M20;
