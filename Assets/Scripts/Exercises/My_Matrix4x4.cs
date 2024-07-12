@@ -321,6 +321,17 @@ public class My_Matrix4x4
         //sacar la escala
         get
         {
+            float rm00 = M00 / LossyScale.x;
+            float rm10 = M10 / LossyScale.x;
+            float rm20 = M20 / LossyScale.x;
+
+            float rm01 = M01 / LossyScale.y;
+            float rm11 = M11 / LossyScale.y;
+            float rm21 = M21 / LossyScale.y;
+
+            float rm02 = M02 / LossyScale.z;
+            float rm12 = M12 / LossyScale.z;
+            float rm22 = M22 / LossyScale.z;
 
 
             My_Quaternion result;
@@ -328,32 +339,32 @@ public class My_Matrix4x4
             //
             if (M22 < 0)
             {
-                if (M00 > M11)
+                if (rm00 > rm11)
                 {
-                    factor = 1 + M00 - M11 - M22;
+                    factor = 1 + rm00 - rm11 - rm22;
 
-                    result = new My_Quaternion(factor, M10 + M01, M20 + M02, M12 - M21);
+                    result = new My_Quaternion(factor, rm10 + rm01, rm20 + rm02, rm12 - rm21);
                 }
                 else
                 {
-                    factor = 1 - M00 + M11 - M22;
+                    factor = 1 - rm00 + rm11 - rm22;
 
-                    result = new My_Quaternion(M01 + M10, factor, M12 + M21, M20 - M02);
+                    result = new My_Quaternion(rm01 + rm10, factor, rm12 + rm21, rm20 - rm02);
                 }
             }
             else
             {
-                if (M00 < -M11)
+                if (rm00 < -rm11)
                 {
-                    factor = 1 - M00 - M11 + M22;
+                    factor = 1 - rm00 - rm11 + rm22;
 
-                    result = new My_Quaternion(M20 + M02, M12 + M21, factor, M01 - M10);
+                    result = new My_Quaternion(rm20 + rm02, rm12 + rm21, factor, rm01 - rm10);
                 }
                 else
                 {
-                    factor = 1 + M00 + M11 + M22;
+                    factor = 1 + rm00 + rm11 + rm22;
 
-                    result = new My_Quaternion(M12 - M21, M20 - M02, M01 - M10, factor);
+                    result = new My_Quaternion(rm12 - rm21, rm20 - rm02, rm01 - rm10, factor);
                 }
             }
 
