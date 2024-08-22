@@ -93,6 +93,16 @@ namespace CustomMath
             return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
         }
 
+        public static Vec3 operator +(Vec3 leftV3, Vector3 rightV3)
+        {
+            return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
+        }
+
+        public static Vec3 operator +(Vector3 leftV3, Vec3 rightV3)
+        {
+            return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
+        }
+
         public static Vec3 operator -(Vec3 leftV3, Vec3 rightV3)
         {
             return new Vec3(leftV3.x - rightV3.x, leftV3.y - rightV3.y, leftV3.z - rightV3.z);

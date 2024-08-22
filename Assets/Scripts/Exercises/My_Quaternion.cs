@@ -102,6 +102,19 @@ public struct My_Quaternion
         // tambien podria verse como Dot(a,b) = 0 o < epsilon;
     }
 
+    public static bool operator ==(Quaternion q1, My_Quaternion q2)
+    {
+        return (q1.x == q2.x)
+            && (q1.y == q2.y)
+            && (q1.z == q2.z)
+            && (q1.w == q2.w);
+    }
+
+    public static bool operator !=(Quaternion q1, My_Quaternion q2)
+    {
+        return !(q1 == q2);
+    }
+
     public static bool operator !=(My_Quaternion q1, My_Quaternion q2)
     {
         return !(q1 == q2);

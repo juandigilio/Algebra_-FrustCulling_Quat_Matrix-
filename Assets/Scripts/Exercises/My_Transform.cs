@@ -182,33 +182,51 @@ public class My_Transform
         throw new System.NotImplementedException();
     }
 
-    public void Translate(float x, float y, float z, Space relativeTo)
-    {
-        throw new System.NotImplementedException();
-    }
-
     public void Translate(Vec3 translation)
     {
-        throw new System.NotImplementedException();
-    }
-
-    public void Translate(Vec3 translation, Space relativeTo)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void Translate(Vec3 translation, Transform relativeTo)
-    {
-        throw new System.NotImplementedException();
+        position += translation;
     }
 
     public void Translate(float x, float y, float z)
     {
-        throw new System.NotImplementedException();
+        Translate(new Vec3(x, y, z));
     }
 
-    public void Translate(float x, float y, float z, Transform relativeTo)
+    public void Translate(Vec3 translation, Space relativeTo)
     {
-        throw new System.NotImplementedException();
+        if (relativeTo == Space.World)
+        {
+            position += translation;
+        }
+        else
+        {
+            position += rotation * translation;
+        }
+
+        hasChanged = true;
+    }
+
+    public void Translate(float x, float y, float z, Space relativeTo)
+    {
+        Translate(new Vec3(x, y, z), relativeTo);
+    }
+
+    public void Translate(Vec3 translation, My_Transform relativeTo)
+    {
+        if (relativeTo != null)
+        {
+            position += relativeTo.rotation * translation;
+        }
+        else
+        {
+            position += translation;
+        }
+
+        hasChanged = true;
+    }
+
+    public void Translate(float x, float y, float z, My_Transform relativeTo)
+    {
+        Translate(new Vec3(x, y, z), relativeTo);
     }
 }
