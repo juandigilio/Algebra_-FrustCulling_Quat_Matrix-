@@ -248,6 +248,11 @@ namespace CustomMath
             z *= scale.z;
         }
 
+        public static Vec3 Scale(Vec3 a, Vec3 b)
+        {
+            return new Vec3(a.x * b.x, a.y * b.y, a.z * b.z);
+        }
+
         public void Normalize()
         {
             float magnitude = Magnitude(this);

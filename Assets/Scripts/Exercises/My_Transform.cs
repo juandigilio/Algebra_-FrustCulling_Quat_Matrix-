@@ -162,29 +162,40 @@ public class My_Transform
         throw new System.NotImplementedException();
     }
 
+    //from local to world
     public Vec3 TransformPoint(Vec3 position)
     {
-        throw new System.NotImplementedException();
+        Vec3 transformedPoint = rotation * Vec3.Scale(localPosition, localScale);
+
+        transformedPoint += position;
+
+        return transformedPoint;
     }
 
     public Vec3 TransformPoint(float x, float y, float z)
     {
-        throw new System.NotImplementedException();
+        return TransformPoint(new(x, y, z));
     }
 
     public Vec3 TransformVector(Vec3 vector)
     {
-        throw new System.NotImplementedException();
+        Vec3 transformedVector = rotation * vector;
+
+        transformedVector = Vec3.Scale(transformedVector, localScale);
+
+        return transformedVector;
     }
 
     public Vec3 TransformVector(float x, float y, float z)
     {
-        throw new System.NotImplementedException();
+        return TransformVector(new Vec3(x, y, z));
     }
 
     public void Translate(Vec3 translation)
     {
         position += translation;
+
+        hasChanged = true;
     }
 
     public void Translate(float x, float y, float z)
