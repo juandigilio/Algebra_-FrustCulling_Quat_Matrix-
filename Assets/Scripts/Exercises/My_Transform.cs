@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
+using static Unity.VisualScripting.Metadata;
+
 
 public class My_Transform
 {
-
-    private My_Matrix4x4 matrix = new My_Matrix4x4();
+    //private My_Matrix4x4 matrix = new My_Matrix4x4();
+    private List<My_Transform> childrens { get; set; }
 
     public Vec3 localPosition { get; set; }
     public Vec3 eulerAngles { get; set; }
@@ -25,23 +27,32 @@ public class My_Transform
     public Vec3 lossyScale { get; set; }
     public bool hasChanged { get; set; }
     public Vec3 localScale { get; set; }
+    public int childCount { get; set; }
 
 
     public void DetachChildren()
     {
-        throw new System.NotImplementedException();
+        foreach (My_Transform child in childrens)
+        {
+            child.SetParent(null);
+        }
+
+        childCount = 0;
+
+        hasChanged = true;
     }
 
-    public My_Transform GetChild(int index)
-    {
-        throw new System.NotImplementedException();
-    }
+    //public My_Transform GetChild(int index)
+    //{
+    //    throw new System.NotImplementedException();
+    //}
 
     public int GetChildCount()
     {
-        throw new System.NotImplementedException();
+        return childCount;
     }
 
+    //direction from global to local
     public Vec3 InverseTransformDirection(Vec3 direction)
     {
         throw new System.NotImplementedException();
@@ -137,32 +148,60 @@ public class My_Transform
         throw new System.NotImplementedException();
     }
 
-    public void SetParent(Transform parent)
+    public void SetParent(My_Transform parent)
     {
-        throw new System.NotImplementedException();
+        this.parent = parent;
+        parent.childrens.Add(this);
+        parent.childCount++;
+
+        hasChanged = true;
     }
 
-    public void SetParent(Transform parent, bool worldPositionStays)
+    public void SetParent(My_Transform parent, bool worldPositionStays)
     {
-        throw new System.NotImplementedException();
+        if (worldPositionStays)
+        {
+            Vec3 worldPosition = localToWorldMatrix.GetPosition();
+            My_Quaternion worldRotation = rotation;
+
+            SetParent(parent);
+
+            if (parent != null)
+            {
+                position = parent.InverseTransformPoint(worldPosition);
+            }
+            else
+            {
+                position = worldPosition;
+            }
+
+            rotation = worldRotation;
+        }
+        else
+        {
+            SetParent(parent);
+        }
     }
 
     public void SetPositionAndRotation(Vec3 position, My_Quaternion rotation)
     {
-        throw new System.NotImplementedException();
+        this.position = position;
+        this.rotation = rotation;
+
+        hasChanged = true;
     }
 
+    //from local to world
     public Vec3 TransformDirection(Vec3 direction)
     {
-        throw new System.NotImplementedException();
+        return rotation * direction;
     }
 
     public Vec3 TransformDirection(float x, float y, float z)
     {
-        throw new System.NotImplementedException();
+        return TransformDirection(new Vec3(x, y, z));
     }
 
-    //from local to world
     public Vec3 TransformPoint(Vec3 position)
     {
         Vec3 transformedPoint = rotation * Vec3.Scale(localPosition, localScale);
