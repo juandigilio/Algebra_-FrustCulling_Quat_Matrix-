@@ -1,6 +1,7 @@
 using CustomMath;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
 using static Unity.VisualScripting.Metadata;
@@ -9,7 +10,7 @@ using static Unity.VisualScripting.Metadata;
 public class My_Transform
 {
     //private My_Matrix4x4 matrix = new My_Matrix4x4();
-    private List<My_Transform> childrens { get; set; }
+    public List<My_Transform> childrens { get; set; }
 
     public Vec3 localPosition { get; set; }
     public Vec3 eulerAngles { get; set; }
@@ -30,7 +31,7 @@ public class My_Transform
     public int childCount { get; set; }
 
 
-    public void DetachChildren()
+    public void DetachChildrens()
     {
         foreach (My_Transform child in childrens)
         {
@@ -38,18 +39,68 @@ public class My_Transform
         }
 
         childCount = 0;
+        childrens.Clear();
 
         hasChanged = true;
     }
 
-    //public My_Transform GetChild(int index)
-    //{
-    //    throw new System.NotImplementedException();
-    //}
+    public void DetachChildren(My_Transform children)
+    {
+        childrens.Remove(children);
+        childCount--;
+    }
 
     public int GetChildCount()
     {
         return childCount;
+    }
+
+    public void SetParent(My_Transform parent)
+    {
+        if (this.parent != null)
+        {
+            this.parent.DetachChildren(this);
+            this.parent = null;
+        }
+
+        this.parent = parent;
+
+        parent.AddChildren(this);
+
+        hasChanged = true;
+    }
+
+    public void SetParent(My_Transform parent, bool worldPositionStays)
+    {
+        if (worldPositionStays)
+        {
+            Vec3 worldPosition = localToWorldMatrix.GetPosition();
+            My_Quaternion worldRotation = rotation;
+
+            SetParent(parent);
+
+            if (parent != null)
+            {
+                position = parent.InverseTransformPoint(worldPosition);
+            }
+            else
+            {
+                position = worldPosition;
+            }
+
+            rotation = worldRotation;
+        }
+        else
+        {
+            SetParent(parent);
+        }
+    }
+
+    public void AddChildren(My_Transform children)
+    {
+        childrens.Add(children);
+        children.parent = this;
+        childCount++;
     }
 
     //direction from global to local
@@ -103,90 +154,108 @@ public class My_Transform
         throw new System.NotImplementedException();
     }
 
-    public void Rotate(Vec3 eulers)
-    {
-        throw new System.NotImplementedException();
-    }
-
     public void Rotate(Vec3 eulers, Space relativeTo)
     {
-        throw new System.NotImplementedException();
+        My_Quaternion eulerRot = My_Quaternion.Euler(eulers.x, eulers.y, eulers.z);
+
+        if (relativeTo == Space.Self)
+        {
+            localRotation = localRotation * eulerRot;
+        }
+        else
+        {
+            rotation = rotation * (My_Quaternion.Inverse(rotation) * eulerRot * rotation);
+        }
+    }
+
+    public void Rotate(Vec3 eulers)
+    {
+        Rotate(eulers, Space.Self);
     }
 
     public void Rotate(float xAngle, float yAngle, float zAngle)
     {
-        throw new System.NotImplementedException();
+        Rotate(new Vec3(xAngle, yAngle, zAngle));
     }
 
     public void Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo)
     {
-        throw new System.NotImplementedException();
-    }
-
-    public void Rotate(Vec3 axis, float angle)
-    {
-        throw new System.NotImplementedException();
+        Rotate(new Vec3(xAngle, yAngle, zAngle), relativeTo);
     }
 
     public void Rotate(Vec3 axis, float angle, Space relativeTo)
     {
-        throw new System.NotImplementedException();
+        My_Quaternion axisRotation = My_Quaternion.AngleAxis(angle, axis);
+
+        if (relativeTo == Space.Self)
+        {
+            localRotation = localRotation * axisRotation;
+        }
+        else
+        {
+            rotation = rotation * (My_Quaternion.Inverse(rotation) * axisRotation * rotation);
+        }
+    }
+
+    public void Rotate(Vec3 axis, float angle)
+    {
+        Rotate(axis, angle, Space.Self);
     }
 
     public void RotateAround(Vec3 point, Vec3 axis, float angle)
     {
-        throw new System.NotImplementedException();
+        My_Quaternion newRotation = My_Quaternion.AngleAxis(angle, axis);
+
+        Vec3 localPoint = point - position;
+
+        Vec3 rotatedPoint = newRotation * localPoint;
+
+        position = rotatedPoint + position;
+
+        newRotation = newRotation * this.rotation;
+
+        this.rotation = newRotation;
     }
 
     public void RotateAround(Vec3 axis, float angle)
     {
-        throw new System.NotImplementedException();
+        RotateAround(Vec3.Zero, axis, angle);
     }
 
     public void SetLocalPositionAndRotation(Vec3 localPosition, My_Quaternion rotation)
     {
-        throw new System.NotImplementedException();
-    }
+        this.localPosition = localPosition;
+        this.localRotation = rotation;
 
-    public void SetParent(My_Transform parent)
-    {
-        this.parent = parent;
-        parent.childrens.Add(this);
-        parent.childCount++;
-
-        hasChanged = true;
-    }
-
-    public void SetParent(My_Transform parent, bool worldPositionStays)
-    {
-        if (worldPositionStays)
+        if (parent != null)
         {
-            Vec3 worldPosition = localToWorldMatrix.GetPosition();
-            My_Quaternion worldRotation = rotation;
-
-            SetParent(parent);
-
-            if (parent != null)
-            {
-                position = parent.InverseTransformPoint(worldPosition);
-            }
-            else
-            {
-                position = worldPosition;
-            }
-
-            rotation = worldRotation;
+            position = parent.position + parent.rotation * localPosition;
+            this.rotation = parent.rotation * localRotation;
         }
         else
         {
-            SetParent(parent);
+            position = localPosition;
+            this.rotation = localRotation;
         }
+
+        hasChanged = true;
     }
 
     public void SetPositionAndRotation(Vec3 position, My_Quaternion rotation)
     {
         this.position = position;
         this.rotation = rotation;
+
+        if (parent != null)
+        {
+            localPosition = My_Quaternion.Inverse(parent.rotation) * (position - parent.position);
+            localRotation = My_Quaternion.Inverse(parent.rotation) * rotation;
+        }
+        else
+        {
+            localPosition = position;
+            localRotation = rotation;
+        }
 
         hasChanged = true;
     }
@@ -230,18 +299,6 @@ public class My_Transform
         return TransformVector(new Vec3(x, y, z));
     }
 
-    public void Translate(Vec3 translation)
-    {
-        position += translation;
-
-        hasChanged = true;
-    }
-
-    public void Translate(float x, float y, float z)
-    {
-        Translate(new Vec3(x, y, z));
-    }
-
     public void Translate(Vec3 translation, Space relativeTo)
     {
         if (relativeTo == Space.World)
@@ -256,16 +313,26 @@ public class My_Transform
         hasChanged = true;
     }
 
+    public void Translate(Vec3 translation)
+    {
+        Translate(translation, Space.Self);
+    }
+
     public void Translate(float x, float y, float z, Space relativeTo)
     {
         Translate(new Vec3(x, y, z), relativeTo);
+    }
+
+    public void Translate(float x, float y, float z)
+    {
+        Translate(new Vec3(x, y, z));
     }
 
     public void Translate(Vec3 translation, My_Transform relativeTo)
     {
         if (relativeTo != null)
         {
-            position += relativeTo.rotation * translation;
+            position += relativeTo.TransformDirection(translation);
         }
         else
         {
