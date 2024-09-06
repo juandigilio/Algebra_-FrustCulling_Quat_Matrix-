@@ -159,6 +159,15 @@ namespace CustomMath
             return (float)Math.Acos(Math.Clamp(dot, -1f, 1f)) * Mathf.Rad2Deg;
         }
 
+        public static Vec3 Inverse(Vec3 vec)
+        {
+            return new Vec3(
+                vec.x != 0 ? 1 / vec.x : 0,
+                vec.y != 0 ? 1 / vec.y : 0,
+                vec.z != 0 ? 1 / vec.z : 0
+            );
+        }
+
         public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)
         {
             float sqrMagnitude = SqrMagnitude(vector);

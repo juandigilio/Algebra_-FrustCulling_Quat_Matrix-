@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
 using static Unity.VisualScripting.Metadata;
+using static UnityEngine.GraphicsBuffer;
 
 
 public class My_Transform
@@ -103,55 +104,48 @@ public class My_Transform
         childCount++;
     }
 
-    //direction from global to local
-    public Vec3 InverseTransformDirection(Vec3 direction)
+
+    /// <summary>
+    /// ///// primero hago el fromToRotation y despues el setRotation?
+    /// </summary>
+    /// <param name="target"></param>
+    public void LookAt(My_Transform target)
     {
-        throw new System.NotImplementedException();
+        Vec3 direction = (target.position - position).normalized;
+
+        Vec3 forward = this.forward;
+
+        My_Quaternion rotation = My_Quaternion.FromToRotation(forward, direction);
+
+        this.rotation = rotation * this.rotation;
+
+        localRotation = rotation * localRotation;
+
+        hasChanged = true;
     }
 
-    public Vec3 InverseTransformDirection(float x, float y, float z)
+    public void LookAt(My_Transform target, Vec3 worldUp)
     {
-        throw new System.NotImplementedException();
-    }
-
-    public Vec3 InverseTransformPoint(Vec3 position)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public Vec3 InverseTransformPoint(float x, float y, float z)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public Vec3 InverseTransformVector(Vec3 vector)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public Vec3 InverseTransformVector(float x, float y, float z)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void LookAt(Transform target)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void LookAt(Transform target, Vec3 worldUp)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void LookAt(Vec3 worldPosition)
-    {
-        throw new System.NotImplementedException();
+       LookAt(target.position, worldUp);
     }
 
     public void LookAt(Vec3 worldPosition, Vec3 worldUp)
     {
-        throw new System.NotImplementedException();
+        Vec3 direction = (position - position).normalized;
+        Vec3 up = worldUp.normalized;
+
+        My_Quaternion rotation = My_Quaternion.LookRotation(direction, up);
+
+        this.rotation = rotation * this.rotation;
+
+        localRotation = rotation * localRotation;
+
+        hasChanged = true;
+    }
+
+    public void LookAt(Vec3 worldPosition)
+    {
+        LookAt(worldPosition, Vec3.Up);
     }
 
     public void Rotate(Vec3 eulers, Space relativeTo)
@@ -260,45 +254,6 @@ public class My_Transform
         hasChanged = true;
     }
 
-    //from local to world
-    public Vec3 TransformDirection(Vec3 direction)
-    {
-        return rotation * direction;
-    }
-
-    public Vec3 TransformDirection(float x, float y, float z)
-    {
-        return TransformDirection(new Vec3(x, y, z));
-    }
-
-    public Vec3 TransformPoint(Vec3 position)
-    {
-        Vec3 transformedPoint = rotation * Vec3.Scale(localPosition, localScale);
-
-        transformedPoint += position;
-
-        return transformedPoint;
-    }
-
-    public Vec3 TransformPoint(float x, float y, float z)
-    {
-        return TransformPoint(new(x, y, z));
-    }
-
-    public Vec3 TransformVector(Vec3 vector)
-    {
-        Vec3 transformedVector = rotation * vector;
-
-        transformedVector = Vec3.Scale(transformedVector, localScale);
-
-        return transformedVector;
-    }
-
-    public Vec3 TransformVector(float x, float y, float z)
-    {
-        return TransformVector(new Vec3(x, y, z));
-    }
-
     public void Translate(Vec3 translation, Space relativeTo)
     {
         if (relativeTo == Space.World)
@@ -345,5 +300,81 @@ public class My_Transform
     public void Translate(float x, float y, float z, My_Transform relativeTo)
     {
         Translate(new Vec3(x, y, z), relativeTo);
+    }
+
+    //from local to world
+    public Vec3 TransformDirection(Vec3 direction)
+    {
+        return rotation * direction;
+    }
+
+    public Vec3 TransformDirection(float x, float y, float z)
+    {
+        return TransformDirection(new Vec3(x, y, z));
+    }
+
+    public Vec3 TransformPoint(Vec3 position)
+    {
+        Vec3 transformedPoint = rotation * Vec3.Scale(localPosition, localScale);
+
+        transformedPoint += position;
+
+        return transformedPoint;
+    }
+
+    public Vec3 TransformPoint(float x, float y, float z)
+    {
+        return TransformPoint(new(x, y, z));
+    }
+
+    public Vec3 TransformVector(Vec3 vector)
+    {
+        Vec3 transformedVector = rotation * vector;
+
+        transformedVector = Vec3.Scale(transformedVector, localScale);
+
+        return transformedVector;
+    }
+
+    public Vec3 TransformVector(float x, float y, float z)
+    {
+        return TransformVector(new Vec3(x, y, z));
+    }
+
+    public Vec3 InverseTransformDirection(Vec3 direction)
+    {
+        return My_Quaternion.Inverse(rotation) * direction;
+    }
+
+    public Vec3 InverseTransformDirection(float x, float y, float z)
+    {
+        return InverseTransformDirection(new Vec3(x, y, z));
+    }
+
+    public Vec3 InverseTransformPoint(Vec3 position)
+    {
+        Vec3 transformedPoint = position - localPosition;
+        transformedPoint = My_Quaternion.Inverse(rotation) * transformedPoint;
+        transformedPoint = Vec3.Scale(transformedPoint, Vec3.Inverse(localScale));
+
+        return transformedPoint;
+    }
+
+    public Vec3 InverseTransformPoint(float x, float y, float z)
+    {
+        return InverseTransformPoint(x, y, z);
+    }
+
+    public Vec3 InverseTransformVector(Vec3 vector)
+    {
+        Vec3 transformedVector = My_Quaternion.Inverse(rotation) * vector;
+        transformedVector = Vec3.Scale(transformedVector, Vec3.Inverse(localScale));
+
+        return transformedVector;
+    }
+
+    public Vec3 InverseTransformVector(float x, float y, float z)
+    {
+        return InverseTransformVector(x, y, z);
     }
 }
