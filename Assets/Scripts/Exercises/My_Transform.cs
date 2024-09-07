@@ -1,16 +1,10 @@
 using CustomMath;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
-using static Unity.VisualScripting.Metadata;
-using static UnityEngine.GraphicsBuffer;
 
 
 public class My_Transform
 {
-    //private My_Matrix4x4 matrix = new My_Matrix4x4();
     public List<My_Transform> childrens { get; set; }
 
     public Vec3 localPosition { get; set; }
@@ -25,7 +19,7 @@ public class My_Transform
     public My_Transform parent { get; set; }
     public My_Matrix4x4 worldToLocalMatrix { get; set; }
     public My_Matrix4x4 localToWorldMatrix { get; set; }
-    public My_Transform root { get; set; }
+    //public My_Transform root { get; set; }
     public Vec3 lossyScale { get; set; }
     public bool hasChanged { get; set; }
     public Vec3 localScale { get; set; }
@@ -104,11 +98,6 @@ public class My_Transform
         childCount++;
     }
 
-
-    /// <summary>
-    /// ///// primero hago el fromToRotation y despues el setRotation?
-    /// </summary>
-    /// <param name="target"></param>
     public void LookAt(My_Transform target)
     {
         Vec3 direction = (target.position - position).normalized;
