@@ -445,11 +445,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unityTransform: {fileID: 848326325}
   testTransform: {fileID: 2024806032}
-  rotation: 0
-  unityLocalRotation: 0
-  unityGlobalRotation: 0
-  myLocalRotation: 0
-  myGlobalRotation: 0
+  rotationX: 0.001
+  rotationY: 0
+  rotationZ: 0
+  unityLocalRotationX: 0
+  unityLocalRotationY: 0
+  unityLocalRotationZ: 0
+  unityGlobalRotationX: 0
+  unityGlobalRotationY: 0
+  unityGlobalRotationZ: 0
+  myLocalRotationX: 0
+  myLocalRotationY: 0
+  myLocalRotationZ: 0
+  myGlobalRotationX: 0
+  myGlobalRotationY: 0
+  myGlobalRotationZ: 0
 --- !u!4 &1695943319
 Transform:
   m_ObjectHideFlags: 0
