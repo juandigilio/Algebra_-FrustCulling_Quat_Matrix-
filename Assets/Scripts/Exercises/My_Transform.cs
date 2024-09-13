@@ -5,26 +5,31 @@ using UnityEngine;
 
 public class My_Transform
 {
-    public List<My_Transform> childrens { get; set; }
-
+    public Vec3 position { get; set; }
     public Vec3 localPosition { get; set; }
+    public My_Quaternion rotation { get; set; }
+    public My_Quaternion localRotation { get; set; }
     public Vec3 eulerAngles { get; set; }
     public Vec3 localEulerAngles { get; set; }
     public Vec3 right { get; set; }
     public Vec3 up { get; set; }
     public Vec3 forward { get; set; }
-    public My_Quaternion rotation { get; set; }
-    public Vec3 position { get; set; }
-    public My_Quaternion localRotation { get; set; }
-    public My_Transform parent { get; set; }
     public My_Matrix4x4 worldToLocalMatrix { get; set; }
     public My_Matrix4x4 localToWorldMatrix { get; set; }
-    //public My_Transform root { get; set; }
     public Vec3 lossyScale { get; set; }
-    public bool hasChanged { get; set; }
     public Vec3 localScale { get; set; }
+    public bool hasChanged { get; set; }
+    public My_Transform parent { get; set; }
+    public List<My_Transform> childrens { get; set; }
     public int childCount { get; set; }
 
+    //public My_Quaternion test;
+
+    public My_Transform()
+    {
+        rotation = My_Quaternion.Identity;
+        localRotation = My_Quaternion.Identity;
+    }
 
     public void DetachChildrens()
     {
@@ -115,7 +120,7 @@ public class My_Transform
 
     public void LookAt(My_Transform target, Vec3 worldUp)
     {
-       LookAt(target.position, worldUp);
+        LookAt(target.position, worldUp);
     }
 
     public void LookAt(Vec3 worldPosition, Vec3 worldUp)
@@ -139,16 +144,22 @@ public class My_Transform
 
     public void Rotate(Vec3 eulers, Space relativeTo)
     {
+        //localRotation = new My_Quaternion(eulers.x, eulers.y, eulers.z, localRotation.w);
+        //rotation = new My_Quaternion(eulers.x, eulers.y, eulers.z, rotation.w);
+
         My_Quaternion eulerRot = My_Quaternion.Euler(eulers.x, eulers.y, eulers.z);
 
+
         if (relativeTo == Space.Self)
-        {
+        {    
             localRotation = localRotation * eulerRot;
         }
         else
         {
             rotation = rotation * (My_Quaternion.Inverse(rotation) * eulerRot * rotation);
         }
+
+        UpdateMatrix();
     }
 
     public void Rotate(Vec3 eulers)
@@ -365,5 +376,35 @@ public class My_Transform
     public Vec3 InverseTransformVector(float x, float y, float z)
     {
         return InverseTransformVector(x, y, z);
+    }
+
+    public void UpdateLocalToWorldMatrix()
+    {
+        My_Matrix4x4 translationMatrix = My_Matrix4x4.Translate(localPosition);
+
+        My_Matrix4x4 rotationMatrix = My_Matrix4x4.Rotate(localRotation);
+
+        My_Matrix4x4 scaleMatrix = My_Matrix4x4.Scale(localScale);
+
+        localToWorldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+        localEulerAngles = localRotation.EulerAngles;
+
+        hasChanged = true;
+    }
+
+    public void UpdateWorldToLocalMatrix()
+    {
+        worldToLocalMatrix = localToWorldMatrix.inverse;
+
+        eulerAngles = rotation.EulerAngles;
+
+        hasChanged = true;
+    }
+
+    private void UpdateMatrix()
+    {
+        UpdateLocalToWorldMatrix();
+        UpdateWorldToLocalMatrix();
     }
 }

@@ -52,6 +52,11 @@ public struct My_Quaternion
         }
     }
 
+    public Quaternion ToQuaternion()
+    {
+        return new Quaternion(x, y, z, w);
+    }
+
     public My_Quaternion(float x, float y, float z, float w)
     {
         this.x = x;
@@ -66,6 +71,14 @@ public struct My_Quaternion
         y = vectorPart.y;
         z = vectorPart.z;
         w = scalarPart;
+    }
+
+    public My_Quaternion(Quaternion q)
+    {
+        x = q.x;
+        y = q.y;
+        z = q.z;
+        w = q.w;
     }
 
     public static My_Quaternion operator +(My_Quaternion q1, My_Quaternion q2)
