@@ -144,19 +144,34 @@ public class My_Transform
 
     public void Rotate(Vec3 eulers, Space relativeTo)
     {
-        //localRotation = new My_Quaternion(eulers.x, eulers.y, eulers.z, localRotation.w);
-        //rotation = new My_Quaternion(eulers.x, eulers.y, eulers.z, rotation.w);
-
         My_Quaternion eulerRot = My_Quaternion.Euler(eulers.x, eulers.y, eulers.z);
 
 
         if (relativeTo == Space.Self)
         {    
-            localRotation = localRotation * eulerRot;
+            localRotation *= eulerRot;
+
+            if (parent != null)
+            {
+                rotation = parent.rotation * localRotation;
+            }
+            else
+            {
+                rotation = localRotation;
+            }
         }
         else
         {
             rotation = rotation * (My_Quaternion.Inverse(rotation) * eulerRot * rotation);
+
+            if (parent != null)
+            {
+                localRotation = My_Quaternion.Inverse(parent.rotation) * rotation;
+            }
+            else
+            {
+                localRotation = rotation;
+            }
         }
 
         UpdateMatrix();
