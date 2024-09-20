@@ -8,11 +8,13 @@ public class TransformTester : MonoBehaviour
     [SerializeField] private Transform testTransform;
     [SerializeField] private Transform children_1;
     [SerializeField] private Transform children_2;
+    [SerializeField] private Transform childOfChild;
     [SerializeField] private Transform point;
 
     public My_Transform myTransform = new My_Transform();
     public My_Transform myChildren_1 = new My_Transform();
     public My_Transform myChildren_2 = new My_Transform();
+    public My_Transform myGrandChildren = new My_Transform();
 
     [SerializeField] private float rotationX;
     [SerializeField] private float rotationY;
@@ -53,8 +55,13 @@ public class TransformTester : MonoBehaviour
         myChildren_2.SetLocalPositionAndRotation(new Vec3(children_2.localPosition), new My_Quaternion(children_2.localRotation));
         myChildren_2.SetPositionAndRotation(new Vec3(children_2.position), new My_Quaternion(children_2.rotation));
 
+        myGrandChildren.SetLocalPositionAndRotation(new Vec3(childOfChild.localPosition), new My_Quaternion(childOfChild.localRotation));
+        myGrandChildren.SetPositionAndRotation(new Vec3(childOfChild.position), new My_Quaternion(childOfChild.rotation));
+
         myChildren_1.SetParent(myTransform);
         myChildren_2.SetParent(myTransform);
+
+        myGrandChildren.SetParent(myChildren_1);
     }
 
     void Update()
@@ -79,7 +86,9 @@ public class TransformTester : MonoBehaviour
         //children_2.SetLocalPositionAndRotation(myChildren_2.localPosition, myChildren_2.localRotation.ToQuaternion());
         children_2.SetPositionAndRotation(myChildren_2.position, myChildren_2.rotation.ToQuaternion());
 
-        
+        //childOfChild.SetLocalPositionAndRotation(myGrandChildren.localPosition, myGrandChildren.localRotation.ToQuaternion());
+        childOfChild.SetPositionAndRotation(myGrandChildren.position, myGrandChildren.rotation.ToQuaternion());
+
 
         UpdateHood();
     }

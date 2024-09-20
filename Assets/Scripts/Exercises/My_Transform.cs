@@ -6,26 +6,27 @@ using UnityEngine;
 
 public class My_Transform
 {
-    public Vec3 position { get; set; }
-    public Vec3 localPosition { get; set; }
-    public My_Quaternion rotation { get; set; }
-    public My_Quaternion localRotation { get; set; }
-    public Vec3 eulerAngles { get; set; }
-    public Vec3 localEulerAngles { get; set; }
-    public Vec3 right { get; set; }
-    public Vec3 up { get; set; }
-    public Vec3 forward { get; set; }
-    public My_Matrix4x4 worldToLocalMatrix { get; set; }
-    public My_Matrix4x4 localToWorldMatrix { get; set; }
-    public Vec3 lossyScale { get; set; }
-    public Vec3 localScale { get; set; }
-    public bool hasChanged { get; set; }
-    public My_Transform parent { get; set; }
-    public List<My_Transform> childrens { get; set; }
-    public int childCount { get; set; }
+    public Vec3 position;
+    public Vec3 localPosition;
+    public My_Quaternion rotation;
+    public My_Quaternion localRotation;
+    public Vec3 eulerAngles;
+    public Vec3 localEulerAngles;
+    public Vec3 right;
+    public Vec3 up;
+    public Vec3 forward;
 
-    //To check list
-    //LookAt
+    public My_Matrix4x4 worldToLocalMatrix;
+    public My_Matrix4x4 localToWorldMatrix;
+
+
+    public Vec3 lossyScale;
+    public Vec3 localScale;
+    public bool hasChanged;
+    public My_Transform parent;
+    public List<My_Transform> childrens;
+    public int childCount;
+
 
     public My_Transform()
     {
@@ -78,9 +79,8 @@ public class My_Transform
         {
             newParent.AddChildren(this);
 
-            this.localPosition = newParent.InverseTransformPoint(worldPosition);
-            this.localRotation = My_Quaternion.Inverse(newParent.rotation) * worldRotation;
-            this.localScale = Vec3.Divide(worldScale, newParent.lossyScale);
+            // pedir el world to local del padre 
+            localPosition = My_Quaternion.Inverse(newParent.rotation) * (worldPosition - newParent.position);
         }
 
         hasChanged = true;
@@ -452,8 +452,7 @@ public class My_Transform
     {
         if (parent != null)
         {
-            position = parent.position + (parent.rotation * Vec3.Scale(localPosition, parent.lossyScale));
-
+            position = parent.rotation * localPosition + parent.position;
             rotation = parent.rotation * localRotation;
         }
         else
