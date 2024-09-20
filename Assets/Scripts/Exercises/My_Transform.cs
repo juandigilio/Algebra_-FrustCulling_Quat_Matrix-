@@ -1,5 +1,6 @@
 using CustomMath;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 
@@ -23,7 +24,8 @@ public class My_Transform
     public List<My_Transform> childrens { get; set; }
     public int childCount { get; set; }
 
-    //public My_Quaternion test;
+    //To check list
+    //LookAt
 
     public My_Transform()
     {
@@ -103,19 +105,60 @@ public class My_Transform
         childCount++;
     }
 
-    public void LookAt(My_Transform target)
+    public void LookAt(Vec3 targetPosition)
     {
-        Vec3 direction = (target.position - position).normalized;
+        Vec3 direction = (targetPosition - position).normalized;
 
-        Vec3 forward = this.forward;
+        My_Quaternion newRotation = My_Quaternion.LookRotation(direction, Vec3.Up);
 
-        My_Quaternion rotation = My_Quaternion.FromToRotation(forward, direction);
+        rotation = newRotation;
 
-        this.rotation = rotation * this.rotation;
-
-        localRotation = rotation * localRotation;
+        if (parent != null)
+        {
+            localRotation = My_Quaternion.Inverse(parent.rotation) * rotation;
+        }
+        else
+        {
+            localRotation = rotation;
+        }
 
         hasChanged = true;
+
+        UpdateMatrix();
+    }
+
+    public void LookAt(Vec3 targetPosition, Vec3 worldUp)
+    {
+        Vec3 direction = (targetPosition - position).normalized;
+
+        Vec3 up = worldUp.normalized;
+
+        My_Quaternion newRotation = My_Quaternion.LookRotation(direction, up);
+
+        rotation = newRotation;
+
+        if (parent != null)
+        {
+            localRotation = My_Quaternion.Inverse(parent.rotation) * rotation;
+        }
+        else
+        {
+            localRotation = rotation;
+        }
+
+        hasChanged = true;
+
+        UpdateMatrix();
+    }
+
+    public void LookAt(My_Transform target)
+    {
+        LookAt(target.position);
+    }
+
+    public void LookAt(Transform target)
+    {
+        LookAt(target.position);
     }
 
     public void LookAt(My_Transform target, Vec3 worldUp)
@@ -123,23 +166,9 @@ public class My_Transform
         LookAt(target.position, worldUp);
     }
 
-    public void LookAt(Vec3 worldPosition, Vec3 worldUp)
+    public void LookAt(Transform target, Vec3 worldUp)
     {
-        Vec3 direction = (position - position).normalized;
-        Vec3 up = worldUp.normalized;
-
-        My_Quaternion rotation = My_Quaternion.LookRotation(direction, up);
-
-        this.rotation = rotation * this.rotation;
-
-        localRotation = rotation * localRotation;
-
-        hasChanged = true;
-    }
-
-    public void LookAt(Vec3 worldPosition)
-    {
-        LookAt(worldPosition, Vec3.Up);
+        LookAt(target.position, worldUp);
     }
 
     public void Rotate(Vec3 eulers, Space relativeTo)

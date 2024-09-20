@@ -1,14 +1,17 @@
 using UnityEngine;
 using CustomMath;
+using UnityEngine.UIElements;
 
 public class TransformTester : MonoBehaviour
 {
     [SerializeField] private Transform unityTransform;
     [SerializeField] private Transform testTransform;
+    [SerializeField] private Transform point;
 
     [SerializeField] private float rotationX;
     [SerializeField] private float rotationY;
     [SerializeField] private float rotationZ;
+    [SerializeField] private float inputSize;
 
     [SerializeField] private Vector3 unityLocalEuler;
     [SerializeField] private Vector3 myLocalEuler;
@@ -35,13 +38,41 @@ public class TransformTester : MonoBehaviour
 
     void Update()
     {
-        unityTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
-        myTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
+        GetInput();
+
+        //unityTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
+        //myTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
+
+        unityTransform.LookAt(point, Vec3.Up);
+        myTransform.LookAt(point, Vec3.Up);
 
         testTransform.SetLocalPositionAndRotation(myTransform.localPosition, myTransform.localRotation.ToQuaternion());
         testTransform.SetPositionAndRotation(myTransform.position, myTransform.rotation.ToQuaternion());
 
         UpdateHood();
+    }
+
+    void GetInput()
+    {
+        float normalizedInput = inputSize * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.W))
+            point.Translate(0,0, normalizedInput);
+
+        if (Input.GetKey(KeyCode.S))
+            point.Translate(0, 0, -normalizedInput);
+
+        if (Input.GetKey(KeyCode.A))
+            point.Translate(-normalizedInput, 0, 0);
+
+        if (Input.GetKey(KeyCode.D))
+            point.Translate(normalizedInput, 0, 0);
+
+        if (Input.GetKey(KeyCode.Q))
+            point.Translate(0, normalizedInput, 0);
+
+        if (Input.GetKey(KeyCode.E))
+            point.Translate(0, -normalizedInput, 0);
     }
 
     void UpdateHood()

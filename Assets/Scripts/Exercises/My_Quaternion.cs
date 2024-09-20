@@ -529,38 +529,110 @@ public struct My_Quaternion
         return Slerp(from, to, (maxDegreesDelta / angle));
     }
 
-    public static My_Quaternion LookRotation(Vec3 forward, Vec3 upwards)
+    public static My_Quaternion LookRotation(Vec3 forward, Vec3 up)
     {
-        Vec3 tempForward = forward.normalized;
-        Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
-        Vec3 tempUp = upwards.normalized;
+        //Vec3 tempForward = forward.normalized;
+        //Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
+        //Vec3 tempUp = upwards.normalized;
 
-        //M00, M01, M02, M03
-        //M10, M11, M12, M13
-        //M20, M21, M22, M23
-        //M30, M31, M32, M33
-        
-        //asigno los vectores a una matriz 3x3
-        float m00 = tempRight.x;
-        float m01 = tempRight.y;
-        float m02 = tempRight.z;
+        ////M00, M01, M02, M03
+        ////M10, M11, M12, M13
+        ////M20, M21, M22, M23
+        ////M30, M31, M32, M33
 
-        float m10 = tempUp.x;
-        float m11 = tempUp.y;
-        float m12 = tempUp.z;
+        ////asigno los vectores a una matriz 3x3
+        //float m00 = tempRight.x;
+        //float m01 = tempRight.y;
+        //float m02 = tempRight.z;
 
-        float m20 = tempForward.x;
-        float m21 = tempForward.y;
-        float m22 = tempForward.z;
+        //float m10 = tempUp.x;
+        //float m11 = tempUp.y;
+        //float m12 = tempUp.z;
 
-        Vector4 column0 = new Vector4(m00, m10, m20, 0);
-        Vector4 column1 = new Vector4(m01, m11, m21, 0);
-        Vector4 column2 = new Vector4(m02, m12, m22, 0);
-        Vector4 column3 = new Vector4(0, 0, 0, 1);
+        //float m20 = tempForward.x;
+        //float m21 = tempForward.y;
+        //float m22 = tempForward.z;
 
-        My_Matrix4x4 result = new My_Matrix4x4(column0, column1, column2, column3);
+        //Vector4 column0 = new Vector4(m00, m10, m20, 0);
+        //Vector4 column1 = new Vector4(m01, m11, m21, 0);
+        //Vector4 column2 = new Vector4(m02, m12, m22, 0);
+        //Vector4 column3 = new Vector4(0, 0, 0, 1);
 
-        return result.Rotation;
+        //My_Matrix4x4 result = new My_Matrix4x4(column0, column1, column2, column3);
+
+        //return result.Rotation;
+
+        forward = forward.normalized;
+
+        Vec3 right = Vector3.Normalize(Vec3.Cross(up, forward));
+
+        up = Vec3.Cross(forward, right);
+
+        float m00 = right.x;
+        float m01 = right.y;
+        float m02 = right.z;
+        float m10 = up.x;
+        float m11 = up.y;
+        float m12 = up.z;
+        float m20 = forward.x;
+        float m21 = forward.y;
+        float m22 = forward.z;
+
+
+        float num8 = (m00 + m11) + m22;
+
+        My_Quaternion result = new My_Quaternion();
+
+        if (num8 > 0f)
+        {
+            float num = (float)Math.Sqrt(num8 + 1f);
+
+            result.w = num * 0.5f;
+            num = 0.5f / num;
+
+            result.x = (m12 - m21) * num;
+            result.y = (m20 - m02) * num;
+            result.z = (m01 - m10) * num;
+
+            return result;
+        }
+        if ((m00 >= m11) && (m00 >= m22))
+        {
+            float num7 = (float)Math.Sqrt(((1f + m00) - m11) - m22);
+
+            float num4 = 0.5f / num7;
+
+            result.x = 0.5f * num7;
+            result.y = (m01 + m10) * num4;
+            result.z = (m02 + m20) * num4;
+            result.w = (m12 - m21) * num4;
+
+            return result;
+        }
+        if (m11 > m22)
+        {
+            float num6 = (float)Math.Sqrt(((1f + m11) - m00) - m22);
+
+            float num3 = 0.5f / num6;
+
+            result.x = (m10 + m01) * num3;
+            result.y = 0.5f * num6;
+            result.z = (m21 + m12) * num3;
+            result.w = (m20 - m02) * num3;
+
+            return result;
+        }
+
+        float num5 = (float)Math.Sqrt(((1f + m22) - m00) - m11);
+
+        float num2 = 0.5f / num5;
+
+        result.x = (m20 + m02) * num2;
+        result.y = (m21 + m12) * num2;
+        result.z = 0.5f * num5;
+        result.w = (m01 - m10) * num2;
+
+        return result;
     }
 
     public static My_Quaternion LookRotation(Vec3 forward)
