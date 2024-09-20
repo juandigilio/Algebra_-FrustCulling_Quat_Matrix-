@@ -31,6 +31,9 @@ public class My_Transform
     {
         rotation = My_Quaternion.Identity;
         localRotation = My_Quaternion.Identity;
+        worldToLocalMatrix = My_Matrix4x4.Identity;
+
+        childrens = new List<My_Transform>();
     }
 
     public void DetachChildrens()
@@ -57,7 +60,7 @@ public class My_Transform
         return childCount;
     }
 
-    public void SetParent(My_Transform parent)
+    public void SetParent(My_Transform newParent)
     {
         if (this.parent != null)
         {
@@ -65,11 +68,23 @@ public class My_Transform
             this.parent = null;
         }
 
-        this.parent = parent;
+        Vec3 worldPosition = this.position;
+        My_Quaternion worldRotation = this.rotation;
+        Vec3 worldScale = this.lossyScale;
 
-        parent.AddChildren(this);
+        this.parent = newParent;
+
+        if (newParent != null)
+        {
+            newParent.AddChildren(this);
+
+            this.localPosition = newParent.InverseTransformPoint(worldPosition);
+            this.localRotation = My_Quaternion.Inverse(newParent.rotation) * worldRotation;
+            this.localScale = Vec3.Divide(worldScale, newParent.lossyScale);
+        }
 
         hasChanged = true;
+        UpdateMatrix();
     }
 
     public void SetParent(My_Transform parent, bool worldPositionStays)
@@ -177,7 +192,7 @@ public class My_Transform
 
 
         if (relativeTo == Space.Self)
-        {    
+        {
             localRotation *= eulerRot;
 
             if (parent != null)
@@ -242,17 +257,19 @@ public class My_Transform
 
     public void RotateAround(Vec3 point, Vec3 axis, float angle)
     {
+        axis = axis.normalized;
+
         My_Quaternion newRotation = My_Quaternion.AngleAxis(angle, axis);
 
-        Vec3 localPoint = point - position;
+        Vec3 localPoint = position - point;
 
         Vec3 rotatedPoint = newRotation * localPoint;
 
-        position = rotatedPoint + position;
+        position = rotatedPoint + point;
 
-        newRotation = newRotation * this.rotation;
+        this.rotation = newRotation * this.rotation;
 
-        this.rotation = newRotation;
+        UpdateMatrix();
     }
 
     public void RotateAround(Vec3 axis, float angle)
@@ -422,33 +439,49 @@ public class My_Transform
         return InverseTransformVector(x, y, z);
     }
 
-    public void UpdateLocalToWorldMatrix()
+    private void UpdateLocalToWorldMatrix()
     {
-        My_Matrix4x4 translationMatrix = My_Matrix4x4.Translate(localPosition);
-
-        My_Matrix4x4 rotationMatrix = My_Matrix4x4.Rotate(localRotation);
-
-        My_Matrix4x4 scaleMatrix = My_Matrix4x4.Scale(localScale);
-
-        localToWorldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+        localToWorldMatrix = My_Matrix4x4.TRS(localPosition, localRotation, localScale);
 
         localEulerAngles = localRotation.EulerAngles;
 
         hasChanged = true;
     }
 
-    public void UpdateWorldToLocalMatrix()
+    private void UpdateWorldToLocalMatrix()
     {
-        worldToLocalMatrix = localToWorldMatrix.inverse;
+        if (parent != null)
+        {
+            position = parent.position + (parent.rotation * Vec3.Scale(localPosition, parent.lossyScale));
+
+            rotation = parent.rotation * localRotation;
+        }
+        else
+        {
+            worldToLocalMatrix = localToWorldMatrix.inverse;
+        }
 
         eulerAngles = rotation.EulerAngles;
 
         hasChanged = true;
+
+        UpdateChildrens();
     }
 
     private void UpdateMatrix()
     {
         UpdateLocalToWorldMatrix();
         UpdateWorldToLocalMatrix();
+    }
+
+    private void UpdateChildrens()
+    {
+        foreach (My_Transform child in childrens)
+        {
+            if (child != null)
+            {
+                child.UpdateWorldToLocalMatrix();
+            }
+        }
     }
 }

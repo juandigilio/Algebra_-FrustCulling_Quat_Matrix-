@@ -274,6 +274,15 @@ namespace CustomMath
             }
         }
 
+        public static Vec3 Divide(Vec3 a, Vec3 b)
+        {
+            return new Vec3(
+                b.x != 0 ? a.x / b.x : 0,
+                b.y != 0 ? a.y / b.y : 0,
+                b.z != 0 ? a.z / b.z : 0
+            );
+        }
+
         public Vector3 ToVector3()
         {
             return new Vector3(x, y, z);

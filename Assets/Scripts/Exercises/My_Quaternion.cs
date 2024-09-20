@@ -517,6 +517,74 @@ public struct My_Quaternion
         return SlerpUnclamped(q1, q2, t);
     }
 
+    //public static My_Quaternion FromTRS(My_Matrix4x4 matrix)
+    //{
+    //    Vec3 xAxis = new Vec3(matrix.M00, matrix.M01, matrix.M02).normalized;
+    //    Vec3 yAxis = new Vec3(matrix.M10, matrix.M11, matrix.M12).normalized;
+    //    Vec3 zAxis = new Vec3(matrix.M20, matrix.M21, matrix.M22).normalized;
+
+    //    // Ahora puedes crear un cuaternión a partir de los ejes
+    //    return new My_Quaternion(xAxis, yAxis, zAxis);
+    //}
+
+    public static My_Quaternion FromRotationMatrix(My_Matrix4x4 matrix)
+    {
+        float trace = matrix.M00 + matrix.M11 + matrix.M22;
+        float s;
+
+        if (trace > 0)
+        {
+            s = Mathf.Sqrt(trace + 1.0f) * 2;
+
+            return new My_Quaternion
+                (
+                (matrix.M21 - matrix.M12) / s,
+                (matrix.M02 - matrix.M20) / s,
+                (matrix.M10 - matrix.M01) / s,
+                0.25f * s
+                );
+        }
+        else
+        {
+            if (matrix.M00 > matrix.M11 && matrix.M00 > matrix.M22)
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M00 - matrix.M11 - matrix.M22) * 2;
+
+                return new My_Quaternion
+                    (
+                    0.25f * s,
+                    (matrix.M01 + matrix.M10) / s,
+                    (matrix.M02 + matrix.M20) / s,
+                    (matrix.M21 - matrix.M12) / s
+                    );
+            }
+            else if (matrix.M11 > matrix.M22)
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M11 - matrix.M00 - matrix.M22) * 2;
+
+                return new My_Quaternion
+                    (
+                    (matrix.M01 + matrix.M10) / s,
+                    0.25f * s,
+                    (matrix.M12 + matrix.M21) / s,
+                    (matrix.M02 - matrix.M20) / s
+                    );
+            }
+            else
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M22 - matrix.M00 - matrix.M11) * 2;
+
+                return new My_Quaternion
+                    (
+                    (matrix.M02 + matrix.M20) / s,
+                    (matrix.M12 + matrix.M21) / s,
+                    0.25f * s,
+                    (matrix.M10 - matrix.M01) / s
+                    );
+            }
+        }
+    }
+
     public static My_Quaternion RotateTowards(My_Quaternion from, My_Quaternion to, float maxDegreesDelta)
     {
         float angle = Angle(from, to);
