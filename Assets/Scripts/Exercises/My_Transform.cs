@@ -1,6 +1,5 @@
 using CustomMath;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 
@@ -190,7 +189,6 @@ public class My_Transform
     {
         My_Quaternion eulerRot = My_Quaternion.Euler(eulers.x, eulers.y, eulers.z);
 
-
         if (relativeTo == Space.Self)
         {
             localRotation *= eulerRot;
@@ -361,6 +359,20 @@ public class My_Transform
     public void Translate(float x, float y, float z, My_Transform relativeTo)
     {
         Translate(new Vec3(x, y, z), relativeTo);
+    }
+
+    public void Scale(Vec3 scale)
+    {
+        localScale = Vec3.Scale(localScale, scale);
+
+        UpdateMatrix();
+    }
+
+    public void SetLocalScale(Vec3 newScale)
+    {
+        localScale = newScale;
+
+        UpdateMatrix();
     }
 
     //from local to world
