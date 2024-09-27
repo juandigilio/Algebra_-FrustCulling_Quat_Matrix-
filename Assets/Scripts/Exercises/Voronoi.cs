@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
 public class Voronoi : MonoBehaviour
 {
     [SerializeField] public List<GameObject> objectsToCull;
     [SerializeField] public GameObject player;
+    [SerializeField] public int selection;
 
     private List<VoronoiPoint> voronoiPoints;
 
@@ -15,9 +17,13 @@ public class Voronoi : MonoBehaviour
     {
         voronoiPoints = new List<VoronoiPoint>();
 
+        int color = 0;
+
         foreach (GameObject obj in objectsToCull)
         {
-            AddPoint(obj);
+            AddObject(obj, color);
+
+            color++;
         }
 
         OrderByDistance();
@@ -25,6 +31,8 @@ public class Voronoi : MonoBehaviour
 
     private void Update()
     {
+        int id = 0;
+
         foreach (VoronoiPoint seccion in voronoiPoints)
         {
             bool isInside = true;
@@ -41,36 +49,62 @@ public class Voronoi : MonoBehaviour
             }
 
             seccion.SwitchOnOff(isInside);
+
+            //seccion.DrawPlanes();
+
+            if (id == selection)
+            {
+                seccion.DrawNormals();
+                seccion.DrawPlanes();
+            }
+
+
+            id++;
         }
     }
 
-    public void AddPoint(GameObject gameObject)
+    void OnDrawGizmos()
     {
-        voronoiPoints.Add(new VoronoiPoint(gameObject));
+        foreach (VoronoiPoint seccion in voronoiPoints)
+        {
+            if (selection == seccion.colorID)
+            {
+                Gizmos.color = seccion.GetColor();
+
+                foreach (Vector3 midpoint in seccion.midPoints)
+                {
+                    Gizmos.DrawSphere(midpoint, 0.1f);
+                }
+            }     
+        }
+    }
+
+    public void AddObject(GameObject gameObject, int color)
+    {
+        voronoiPoints.Add(new VoronoiPoint(gameObject, color));
     }
 
     public void OrderByDistance()
     {
-        List<VoronoiPoint> temporalPoints = new List<VoronoiPoint>();
-        List<VoronoiPoint> orderedPoints = new List<VoronoiPoint>();
-
+        List<VoronoiPoint> temporalObjects = new List<VoronoiPoint>();
+        List<VoronoiPoint> orderedObjects = new List<VoronoiPoint>();
 
         for (int i = 0; i < voronoiPoints.Count; i++)
         {
-            temporalPoints.Clear();
-            orderedPoints.Clear();
+            temporalObjects.Clear();
+            orderedObjects.Clear();
 
-            temporalPoints.AddRange(voronoiPoints);
-            temporalPoints.RemoveAt(i);
+            temporalObjects.AddRange(voronoiPoints);
+            temporalObjects.RemoveAt(i);
 
-            while (temporalPoints.Count > 0)
+            while (temporalObjects.Count > 0)
             {
                 float minDistance = Mathf.Infinity;
                 int minIndex = 0;
 
-                for (int j = 0; j < temporalPoints.Count; j++)
+                for (int j = 0; j < temporalObjects.Count; j++)
                 {
-                    float distance = Vector3.Distance(voronoiPoints[i].gameObject.transform.position, temporalPoints[j].gameObject.transform.position);
+                    float distance = Vector3.Distance(voronoiPoints[i].gameObject.transform.position, temporalObjects[j].gameObject.transform.position);
 
                     if (distance < minDistance)
                     {
@@ -79,11 +113,11 @@ public class Voronoi : MonoBehaviour
                     }
                 }
 
-                orderedPoints.Add(temporalPoints[minIndex]);
-                temporalPoints.RemoveAt(minIndex);
+                orderedObjects.Add(temporalObjects[minIndex]);
+                temporalObjects.RemoveAt(minIndex);
             }
 
-            voronoiPoints[i].SetNearestPlanes(orderedPoints);
+            voronoiPoints[i].SetNearestPlanes(orderedObjects);
         }
     }
 }
