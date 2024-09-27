@@ -1,14 +1,9 @@
 using System.Collections.Generic;
-//using System.Numerics;
-
-//using System.Numerics;
 using UnityEngine;
 using CustomMath;
 
 public class VoronoiPoint
 {
-    //public Vector3 position;
-
     public List<MyPlane> nearestPlanes = new List<MyPlane>();
     public GameObject gameObject;
     public Renderer renderer;
@@ -62,6 +57,7 @@ public class VoronoiPoint
     public void DrawNormals()
     {
         int i = 0;
+
         foreach (Vec3 midpoint in midPoints)
         {
             Debug.DrawLine(midpoint, (midpoint + nearestPlanes[i].normal), GetColor());
@@ -92,7 +88,6 @@ public class VoronoiPoint
             Vec3 corner3 = planeCenter + (-planeRight - planeForward) * planeSize;
             Vec3 corner4 = planeCenter + (-planeRight + planeForward) * planeSize;
 
-            // Dibujar las líneas del plano
             Debug.DrawLine(corner1, corner2, GetColor());
             Debug.DrawLine(corner2, corner3, GetColor());
             Debug.DrawLine(corner3, corner4, GetColor());

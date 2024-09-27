@@ -51,8 +51,6 @@ public class Voronoi : MonoBehaviour
 
             seccion.SwitchOnOff(isInside);
 
-            //seccion.DrawPlanes();
-
             if (id == selection)
             {
                 seccion.DrawNormals();
