@@ -3,18 +3,19 @@ using System.Collections.Generic;
 
 //using System.Numerics;
 using UnityEngine;
+using CustomMath;
 
 public class VoronoiPoint
 {
     //public Vector3 position;
 
-    public List<Plane> nearestPlanes = new List<Plane>();
+    public List<MyPlane> nearestPlanes = new List<MyPlane>();
     public GameObject gameObject;
     public Renderer renderer;
     public int colorID;
 
-    public List<Vector3> midPoints = new List<Vector3>();
-    public List<Vector3> normals = new List<Vector3>();
+    public List<Vec3> midPoints = new List<Vec3>();
+    public List<Vec3> normals = new List<Vec3>();
 
     public VoronoiPoint(GameObject gameObject, int color)
     {
@@ -47,33 +48,22 @@ public class VoronoiPoint
 
     public void CreatePlane(VoronoiPoint otherPoint)
     {
-        Vector3 midPoint = (gameObject.transform.position + otherPoint.gameObject.transform.position) / 2.0f;
-        Vector3 normal = (gameObject.transform.position - otherPoint.gameObject.transform.position).normalized;
+        Vec3 midPoint = (gameObject.transform.position + otherPoint.gameObject.transform.position) / 2.0f;
+        Vec3 normal = (gameObject.transform.position - otherPoint.gameObject.transform.position).normalized;
 
         midPoints.Add(midPoint);
         normals.Add(normal);
 
-        Plane plane = new Plane(normal, midPoint);
+        MyPlane plane = new MyPlane(normal, midPoint);
 
         nearestPlanes.Add(plane);
-
-        //if (nearestPlanes.Count < 2)
-        //{
-        //    nearestPlanes.Add(plane);
-        //}
-        //else
-        //{
-        //    //si plane plane intersecta con el poligono formado por los planos que hayan en nearestPlanes, agregarlo a nearestPlanes
-        //}
     }
 
     public void DrawNormals()
     {
         int i = 0;
-        foreach (Vector3 midpoint in midPoints)
+        foreach (Vec3 midpoint in midPoints)
         {
-            //Vector3 planeCenter = nomrals;
-
             Debug.DrawLine(midpoint, (midpoint + nearestPlanes[i].normal), GetColor());
 
             i++;
@@ -84,36 +74,30 @@ public class VoronoiPoint
     {
         float planeSize = 5f;
 
-        foreach (Vector3 midpoint in midPoints)
+        foreach (MyPlane plane in nearestPlanes)
         {
-           // Debug.draw
+            Vec3 planeCenter = -plane.normal * plane.distance;
+
+            Vec3 planeRight = Vec3.Cross(plane.normal, Vec3.Up).normalized;
+
+            if (planeRight.magnitude < 0.1f)
+            {
+                planeRight = Vec3.Cross(plane.normal, Vec3.Right).normalized;
+            }
+
+            Vec3 planeForward = Vec3.Cross(plane.normal, planeRight).normalized;
+
+            Vec3 corner1 = planeCenter + (planeRight + planeForward) * planeSize;
+            Vec3 corner2 = planeCenter + (planeRight - planeForward) * planeSize;
+            Vec3 corner3 = planeCenter + (-planeRight - planeForward) * planeSize;
+            Vec3 corner4 = planeCenter + (-planeRight + planeForward) * planeSize;
+
+            // Dibujar las líneas del plano
+            Debug.DrawLine(corner1, corner2, GetColor());
+            Debug.DrawLine(corner2, corner3, GetColor());
+            Debug.DrawLine(corner3, corner4, GetColor());
+            Debug.DrawLine(corner4, corner1, GetColor());
         }
-
-        //foreach (MyPlane plane in nearestPlanes)
-        //{
-        //    //Vec3 planeCenter = -plane.normal * plane.distance;
-        //    Vec3 planeCenter = plane.normal;
-
-        //    Vec3 planeRight = Vec3.Cross(plane.normal, Vec3.Up).normalized;
-
-        //    if (planeRight.magnitude < 0.1f)
-        //    {
-        //        planeRight = Vec3.Cross(plane.normal, Vec3.Right).normalized;
-        //    }
-
-        //    Vec3 planeForward = Vec3.Cross(plane.normal, planeRight).normalized;
-
-        //    Vec3 corner1 = planeCenter + (planeRight + planeForward) * planeSize;
-        //    Vec3 corner2 = planeCenter + (planeRight - planeForward) * planeSize;
-        //    Vec3 corner3 = planeCenter + (-planeRight - planeForward) * planeSize;
-        //    Vec3 corner4 = planeCenter + (-planeRight + planeForward) * planeSize;
-
-        //    // Dibujar las líneas del plano
-        //    Debug.DrawLine(corner1, corner2, GetColor());
-        //    Debug.DrawLine(corner2, corner3, GetColor());
-        //    Debug.DrawLine(corner3, corner4, GetColor());
-        //    Debug.DrawLine(corner4, corner1, GetColor());
-        //}
     }
 
     public Color GetColor()

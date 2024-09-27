@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using CustomMath;
 
 
 
@@ -37,7 +38,7 @@ public class Voronoi : MonoBehaviour
         {
             bool isInside = true;
 
-            foreach (Plane plane in seccion.nearestPlanes)
+            foreach (MyPlane plane in seccion.nearestPlanes)
             {
                 float distance = plane.GetDistanceToPoint(player.transform.position);
 
@@ -65,17 +66,20 @@ public class Voronoi : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        foreach (VoronoiPoint seccion in voronoiPoints)
+        if (Application.isPlaying)
         {
-            if (selection == seccion.colorID)
+            foreach (VoronoiPoint seccion in voronoiPoints)
             {
-                Gizmos.color = seccion.GetColor();
-
-                foreach (Vector3 midpoint in seccion.midPoints)
+                if (selection == seccion.colorID)
                 {
-                    Gizmos.DrawSphere(midpoint, 0.1f);
+                    Gizmos.color = seccion.GetColor();
+
+                    foreach (Vec3 midpoint in seccion.midPoints)
+                    {
+                        Gizmos.DrawSphere(midpoint.ToVector3(), 0.1f);
+                    }
                 }
-            }     
+            }
         }
     }
 
