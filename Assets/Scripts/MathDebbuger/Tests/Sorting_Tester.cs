@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
-using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 
 public enum Algorithms
@@ -25,13 +23,16 @@ public enum Algorithms
 
 
 //BitonicSort
-//Quick
 //RadixLSD
-//RadixMSD
-//Intro
 //AdaptiveMerge
 //Merge
 //Heap
+//Intro
+
+
+//RadixMSD
+
+
 
 public class Sorting_Tester : MonoBehaviour
 {
@@ -61,6 +62,7 @@ public class Sorting_Tester : MonoBehaviour
         AlignObjectsInRow();
 
         currentAlgorithm = algorithms;
+        SetFrameRate();
     }
 
     void Update()
@@ -68,11 +70,20 @@ public class Sorting_Tester : MonoBehaviour
         if (currentAlgorithm != algorithms)
         {
             currentAlgorithm = algorithms;
+
             ResetHeights();
+
+            SetFrameRate();
         }
 
         switch (algorithms)
         {
+            case Algorithms.BitonicSort:
+                {
+                    //StartCoroutine(My_SortingAlgorithms<float>.BitonicSort(heights, delay));
+                    My_SortingAlgorithms<float>.BitonicSort(heights, delay);
+                    break;
+                }
             case Algorithms.SelectionSort:
                 {
                     StartCoroutine(My_SortingAlgorithms<float>.SelectionSort(heights, delay));
@@ -90,12 +101,13 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.QuickSort:
                 {
-                    My_SortingAlgorithms<float>.QuickSort(heights, delay);
+                    StartCoroutine(My_SortingAlgorithms<float>.QuickSort(heights, delay));
                     break;
                 }
             case Algorithms.RadixSortLSD:
                 {
-                    StartCoroutine(My_SortingAlgorithms<float>.RadixSortLSD(heights, delay, x => x));
+                    //StartCoroutine(My_SortingAlgorithms<float>.RadixSortLSD(heights, delay, x => x));
+                    My_SortingAlgorithms<float>.RadixSortLSD(heights, delay, x => x);
                     break;
                 }
             case Algorithms.ShellSort:
@@ -110,11 +122,13 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.RadixSortMSD:
                 {
-                    StartCoroutine(My_SortingAlgorithms<float>.RadixSortMSD(heights, delay, x => (int)(x * 10)));
+                    //StartCoroutine(My_SortingAlgorithms<float>.RadixSortMSD(heights, delay, x => (int)(x * 10)));
+                    My_SortingAlgorithms<float>.RadixSortMSD(heights, delay, x => (int)(x * 10));
                     break;
                 }
             case Algorithms.IntroSort:
                 {
+                    //StartCoroutine(My_SortingAlgorithms<float>.IntroSort(heights, delay));
                     My_SortingAlgorithms<float>.IntroSort(heights, delay);
                     break;
                 }
@@ -130,12 +144,14 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.MergeSort:
                 {
+                    //StartCoroutine(My_SortingAlgorithms<float>.MergeSort(heights, delay));
                     My_SortingAlgorithms<float>.MergeSort(heights, delay);
                     break;
                 }
             case Algorithms.HeapSort:
                 {
-                    StartCoroutine(My_SortingAlgorithms<float>.HeapSort(heights, delay));
+                    //StartCoroutine(My_SortingAlgorithms<float>.HeapSort(heights, delay));
+                    My_SortingAlgorithms<float>.HeapSort(heights, delay);
                     break;
                 }
             case Algorithms.InsertionSort:
@@ -153,6 +169,7 @@ public class Sorting_Tester : MonoBehaviour
         for (int i = 0; i < objects.Count; i++)
         {
             objects[i].transform.localScale = new Vector3(objects[i].transform.localScale.x, heights[i], 1f);
+            objects[i].transform.position = new Vector3(objects[i].transform.position.x, (-4f + objects[i].transform.localScale.y / 2), 0);
 
             float redValue = Mathf.Clamp01(heights[i] / 10f);
             objects[i].GetComponent<Renderer>().material.color = new Color(1f, 1f - redValue, 1f - redValue);
@@ -176,16 +193,34 @@ public class Sorting_Tester : MonoBehaviour
 
         foreach (GameObject obj in objects)
         {
-            obj.transform.position = new Vector3(currentX + step, 0, 0);
+            obj.transform.position = new Vector3(currentX + step, (-10f + obj.transform.localScale.y * 2), 0);
             currentX += step;
         }
     }
 
     void ResetHeights()
     {
-        for (int i = 0; i < heights.Count; i++)
+        StopAllCoroutines();
+        
+        heights.Clear();
+
+        for (int i = 0; i < objects.Count; i++)
         {
-            heights[i] = Random.Range(1f, 10f);
+            heights.Add(Random.Range(1f, 10f));
+        }
+
+        SetTransformsScale();
+    }
+
+    void SetFrameRate()
+    {
+        if (algorithms == Algorithms.BitonicSort)
+        {
+            Application.targetFrameRate = 90;
+        }
+        else
+        {
+            Application.targetFrameRate = 60;
         }
     }
 }

@@ -1,7 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using Unity.VisualScripting;
 using UnityEngine;
+
 
 public static class My_SortingAlgorithms<T> where T : IComparable<T>
 {
@@ -12,9 +16,56 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
         array[j] = temp;
     }
 
+    // BogoSort
+    //0(n!)
+
+    // BubbleSort
+    //0(n^2)
+
+    // CocktailShakerSort
+    //0(n^2)
+
+    // GnomeSort
+    //0(n^2)
+
+    // InsertionSort
+    //0(n^2)
+
+    // SelectionSort
+    //0(n^2)
+
+    // ShellSort
+    //0(n^2)
+
+    // BitonicSort
+    //0(n log^2 n)
+
+    // QuickSort
+    //0(n log n)
+
+    // MergeSort
+    //0(n log n)
+
+    // HeapSort
+    //0(n log n)
+
+    // RadixSortLSD
+    //0(n)
+
+    // RadixSortMSD
+    //0(n)
+
+    // IntroSort
+    //0(n log n)
+
+    // AdaptiveMergeSort
+    //0(n log n)
+
+
+    //Separo en secuencias bitonicas
     public static void BitonicSort(List<T> array, float delay)
     {
-        IEnumerator BitonicMerge(int low, int count, bool ascending)
+        void BitonicMerge(int low, int count, bool ascending)
         {
             if (count > 1)
             {
@@ -26,8 +77,6 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
                     {
                         Swap(array, i, i + mid);
                     }
-
-                    yield return new WaitForSeconds(delay);
                 }
 
                 BitonicMerge(low, mid, ascending);
@@ -40,8 +89,11 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
             if (count > 1)
             {
                 int mid = count / 2;
+
                 RecursiveSort(low, mid, true);
+
                 RecursiveSort(low + mid, mid, false);
+
                 BitonicMerge(low, count, ascending);
             }
         }
@@ -98,17 +150,18 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
         } while (swapped);
     }
 
-    public static void QuickSort(List<T> array, float delay)
+    public static IEnumerator QuickSort(List<T> array, float delay)
     {
         IEnumerator Sort(int low, int high)
         {
+            yield return new WaitForSeconds(delay);
+
             if (low < high)
             {
                 int pivot = Partition(low, high);
-                Sort(low, pivot - 1);
-                Sort(pivot + 1, high);
+                yield return Sort(low, pivot - 1);
+                yield return Sort(pivot + 1, high);
 
-                yield return new WaitForSeconds(delay);
             }
         }
 
@@ -130,10 +183,10 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
             return i;
         }
 
-        Sort(0, array.Count - 1);
+        yield return Sort(0, array.Count - 1);
     }
 
-    public static IEnumerator RadixSortLSD(List<T> array, float delay, Func<T, float> getKey, int precision = 1000)
+    public static void RadixSortLSD(List<T> array, float delay, Func<T, float> getKey, int precision = 1000)
     {
         int GetDigit(int number, int place) => (number / place) % 10;
 
@@ -165,16 +218,17 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
             }
 
             int index = 0;
-            foreach (var bucket in buckets)
+            for (int i = 0; i < buckets.Length; i++)
             {
-                foreach (var item in bucket)
+                foreach (var item in buckets[i])
                 {
                     array[index] = item;
                     scaledArray[index++] = (int)(getKey(item) * precision);
                 }
             }
 
-            yield return new WaitForSeconds(delay);
+            // Pausar la ejecución para simular animación o espera
+            //yield return new WaitForSeconds(delay);
         }
     }
 
@@ -230,57 +284,58 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
         }
     }
 
-    public static IEnumerator RadixSortMSD(List<T> array, float delay, System.Func<T, int> keySelector)
+    public static void RadixSortMSD(List<T> array, float delay, System.Func<T, int> keySelector)
     {
-        IEnumerator Sort(List<T> array, int digit)
+        List<T> CloneList(List<T> list)
         {
-            if (array.Count <= 1 || digit < 0)
+            List<T> clone = new List<T>(list.Count);
+            foreach (var item in list)
             {
-                yield return new WaitForSeconds(delay);
-                yield break;
+                clone.Add(item);
+            }
+            return clone;
+        }
+
+        void Sort(List<T> array, int low, int high, int place)
+        {
+            if (low >= high || place < 0)
+            {
+                return;
             }
 
             var buckets = new List<T>[10];
-
             for (int i = 0; i < 10; i++)
             {
                 buckets[i] = new List<T>();
             }
 
-            foreach (var item in array)
+            for (int i = low; i <= high; i++)
             {
-                int bucketIndex = (keySelector(item) / (int)Math.Pow(10, digit)) % 10;
-                buckets[bucketIndex].Add(item);
+                int digit = (keySelector(array[i]) / (int)Math.Pow(10, place)) % 10;
+                buckets[digit].Add(array[i]);
             }
 
-            array.Clear();
-
+            int index = low;
             for (int i = 0; i < 10; i++)
             {
-                yield return Sort(buckets[i], digit - 1);
-                array.AddRange(buckets[i]);
-                yield return new WaitForSeconds(delay);
+                Sort(buckets[i], 0, buckets[i].Count - 1, place - 1);
+                foreach (var item in buckets[i])
+                {
+                    array[index++] = item;
+                }
             }
         }
 
-        int max = keySelector(array[0]);
-        foreach (var item in array)
-        {
-            max = Math.Max(max, keySelector(item));
-        }
-
-        int maxDigits = (int)Math.Log10(max) + 1;
-
-        yield return Sort(array, maxDigits - 1);
+        Sort(array, 0, array.Count - 1, 3);
     }
 
     public static void IntroSort(List<T> array, float delay)
     {
-        IEnumerator Sort(int low, int high, int depthLimit)
+        void Sort(int low, int high, int depthLimit)
         {
             if (low >= high)
             {
-                yield return new WaitForSeconds(delay);
+                return;
             }
 
             if (depthLimit == 0)
@@ -291,9 +346,8 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
             {
                 int pivot = Partition(low, high);
                 Sort(low, pivot - 1, depthLimit - 1);
-                yield return new WaitForSeconds(delay);
+       
                 Sort(pivot + 1, high, depthLimit - 1);
-                yield return new WaitForSeconds(delay);
             }
         }
 
@@ -323,53 +377,74 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
 
     public static void AdaptiveMergeSort(List<T> array, float delay)
     {
-        IEnumerator Merge(List<T> left, List<T> right, List<T> array)
-        {
-            int i = 0, j = 0;
+        // Tamaño del segmento donde cambia a ordenamiento por inserción
+        const int INSERTION_SORT_THRESHOLD = 16;
 
-            while (i < left.Count && j < right.Count)
+        void Merge(List<T> array, int left, int mid, int right)
+        {
+            int n1 = mid - left + 1;
+            int n2 = right - mid;
+
+            var leftArray = new T[n1];
+            var rightArray = new T[n2];
+
+            for (int i = 0; i < n1; i++) leftArray[i] = array[left + i];
+            for (int j = 0; j < n2; j++) rightArray[j] = array[mid + 1 + j];
+
+            int iL = 0, iR = 0, k = left;
+
+            while (iL < n1 && iR < n2)
             {
-                if (left[i].CompareTo(right[j]) <= 0)
+                if (leftArray[iL].CompareTo(rightArray[iR]) <= 0)
                 {
-                    array.Add(left[i++]);
+                    array[k++] = leftArray[iL++];
                 }
                 else
                 {
-                    array.Add(right[j++]);
+                    array[k++] = rightArray[iR++];
                 }
-
-                yield return new WaitForSeconds(delay);
             }
 
-            array.AddRange(left.GetRange(i, left.Count - i));
-            array.AddRange(right.GetRange(j, right.Count - j));
+            while (iL < n1) array[k++] = leftArray[iL++];
+            while (iR < n2) array[k++] = rightArray[iR++];
         }
 
-        void Sort(List<T> arrayCopy, List<T> array)
+        void InsertionSort(List<T> array, int left, int right)
         {
-            if (arrayCopy.Count <= 1)
+            for (int i = left + 1; i <= right; i++)
             {
+                var key = array[i];
+                int j = i - 1;
+
+                while (j >= left && array[j].CompareTo(key) > 0)
+                {
+                    array[j + 1] = array[j];
+                    j--;
+                }
+
+                array[j + 1] = key;
+            }
+        }
+
+        void Sort(List<T> array, int left, int right)
+        {
+            if (left >= right) return;
+
+            if (right - left <= INSERTION_SORT_THRESHOLD)
+            {
+                InsertionSort(array, left, right);
                 return;
             }
 
-            int mid = arrayCopy.Count / 2;
-            var left = arrayCopy.GetRange(0, mid);
-            var right = arrayCopy.GetRange(mid, arrayCopy.Count - mid);
+            int mid = left + (right - left) / 2;
 
-            Sort(left, array);
-            Sort(right, array);
+            Sort(array, left, mid);
+            Sort(array, mid + 1, right);
 
-            array.Clear();
-
-            Merge(left, right, array);
-
-            //arrayCopy.Clear();
-            //arrayCopy.AddRange(array);
+            Merge(array, left, mid, right);
         }
 
-        List<T> arrayCopy = new List<T>(array);
-
-        Sort(arrayCopy, array);
+        Sort(array, 0, array.Count - 1);
     }
 
     public static IEnumerator BubbleSort(List<T> array, float delay)
@@ -410,9 +485,10 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
 
     public static void MergeSort(List<T> array, float delay)
     {
-        IEnumerator Merge(List<T> left, List<T> right, List<T> array)
+        void Merge(List<T> left, List<T> right, List<T> array)
         {
             int i = 0, j = 0;
+
             while (i < left.Count && j < right.Count)
             {
                 if (left[i].CompareTo(right[j]) <= 0)
@@ -424,8 +500,9 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
                     array.Add(right[j++]);
                 }
 
-                yield return new WaitForSeconds(delay);
+                //yield return new WaitForSeconds(delay);
             }
+
             array.AddRange(left.GetRange(i, left.Count - i));
             array.AddRange(right.GetRange(j, right.Count - j));
         }
@@ -451,44 +528,55 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
         Sort(arrayCopy, array);
     }
 
-    public static IEnumerator HeapSort(List<T> array, float delay)
+    public static void HeapSort(List<T> array, float delay)
     {
-        IEnumerator Heapify(int start, int end, int root)
+        void Heapify(int end, int root)
         {
-            int largest = root;
-            int left = 2 * root + 1;
-            int right = 2 * root + 2;
+            int largest = root; // Inicialmente, la raíz es el nodo más grande
+            int left = 2 * root + 1; // Hijo izquierdo
+            int right = 2 * root + 2; // Hijo derecho
 
+            // Verificar si el hijo izquierdo es más grande que la raíz
             if (left < end && array[left].CompareTo(array[largest]) > 0)
             {
                 largest = left;
             }
 
+            // Verificar si el hijo derecho es más grande que el más grande actual
             if (right < end && array[right].CompareTo(array[largest]) > 0)
             {
                 largest = right;
             }
 
+            // Si el más grande no es la raíz
             if (largest != root)
             {
                 Swap(array, root, largest);
-                yield return new WaitForSeconds(delay);
-                yield return Heapify(start, end, largest);
+
+                // Aplicar recursivamente el heapify en el subárbol afectado
+                Heapify(end, largest);
             }
         }
 
         int n = array.Count;
 
-        for (int i = (n / 2) - 1; i >= 0; i--)
+        // Construir el heap (reordenar el array)
+        for (int i = n / 2 - 1; i >= 0; i--)
         {
-            yield return Heapify(0, n, i);
+            Heapify(n, i);
         }
 
+        // Extraer los elementos del heap uno por uno
         for (int i = n - 1; i > 0; i--)
         {
+            // Mover la raíz actual al final
             Swap(array, 0, i);
-            yield return new WaitForSeconds(delay);
-            yield return Heapify(0, i, 0);
+
+            // Llamar a Heapify en el heap reducido
+            Heapify(i, 0);
+
+            // Pausar para observar el cambio
+            //yield return new WaitForSeconds(delay);
         }
     }
 
