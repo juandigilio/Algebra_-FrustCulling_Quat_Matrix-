@@ -1203,6 +1203,7 @@ MonoBehaviour:
   rotationY: 0
   rotationZ: 0
   inputSize: 8
+  scale: 1
   myLocalEuler: {x: 0, y: 0, z: 0}
   mychildrenLocalEuler: {x: 0, y: 0, z: 0}
   myGlobalEuler: {x: 0, y: 0, z: 0}

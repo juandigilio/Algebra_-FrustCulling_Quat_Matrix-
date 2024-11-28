@@ -90,8 +90,9 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
             {
                 int mid = count / 2;
 
+                //ascendente
                 RecursiveSort(low, mid, true);
-
+                //descendente
                 RecursiveSort(low + mid, mid, false);
 
                 BitonicMerge(low, count, ascending);
