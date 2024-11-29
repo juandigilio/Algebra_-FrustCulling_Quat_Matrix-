@@ -29,6 +29,7 @@ public class Graph_Tester : MonoBehaviour
     [SerializeField] private List<int> source2 = new List<int>();
     [SerializeField] private Methods method;
     [SerializeField] private int tester;
+    [SerializeField] private bool refresh;
 
     private Methods lastMethod;
 
@@ -36,12 +37,14 @@ public class Graph_Tester : MonoBehaviour
     void Start()
     {
         TestMethod(method);
+        refresh = false;
     }
 
     void Update()
     {
-        if (lastMethod != method)
+        if (lastMethod != method || refresh == true)
         {
+            refresh = false;
             lastMethod = method;
             TestMethod(method);
         }
@@ -217,7 +220,7 @@ public class Graph_Tester : MonoBehaviour
     {
         var resultList = GraphMethods.ToList(GraphMethods.Where(source1, i => i == tester));
 
-        string logText = "SkipWhile result: ";
+        string logText = "Where result: ";
 
         foreach (var element in resultList)
         {

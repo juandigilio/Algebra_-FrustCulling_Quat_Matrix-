@@ -203,7 +203,7 @@ public class GraphMethods
         //Memory complexity: O(1)
         foreach (TSource item in source)
         {
-            if (predicate(item))
+            if (predicate.Invoke(item))
             {
                 return item;
             }
@@ -381,16 +381,10 @@ public class GraphMethods
     {
         //Time complexity: O(n)
         //Memory complexity: O(1)
-        bool skipping = true;
 
         foreach (TSource item in source)
         {
-            if (skipping && !predicate(item))
-            {
-                skipping = false;
-            }
-
-            if (!skipping)
+            if (!predicate(item))
             {
                 yield return item;
             }
@@ -436,13 +430,11 @@ public class GraphMethods
         if (source1 == null) throw new ArgumentNullException(nameof(source1));
         if (source2 == null) throw new ArgumentNullException(nameof(source2));
 
-        // HashSet para evitar duplicados
         HashSet<TSource> seen = new HashSet<TSource>(comparer);
 
-        // Agregar elementos de source1
         foreach (TSource item in source1)
         {
-            if (seen.Add(item)) // Agrega solo si no está presente
+            if (seen.Add(item))
             {
                 yield return item;
             }
@@ -451,7 +443,7 @@ public class GraphMethods
         // Agregar elementos de source2
         foreach (TSource item in source2)
         {
-            if (seen.Add(item)) // Agrega solo si no está presente
+            if (seen.Add(item))
             {
                 yield return item;
             }
@@ -471,9 +463,9 @@ public class GraphMethods
 
         foreach (TSource item in source)
         {
-            if (predicate(item)) // Evaluar el predicado
+            if (predicate(item))
             {
-                yield return item; // Devolver el elemento si cumple la condición
+                yield return item;
             }
         }
     }
@@ -481,6 +473,7 @@ public class GraphMethods
     public static List<TSource> ToList<TSource>(IEnumerable<TSource> source)
     {
         List<TSource> list = new List<TSource>();
+
         foreach (TSource data in source)
         {
             list.Add(data);
