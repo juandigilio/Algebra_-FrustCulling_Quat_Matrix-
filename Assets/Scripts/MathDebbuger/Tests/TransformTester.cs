@@ -69,14 +69,13 @@ public class TransformTester : MonoBehaviour
     {
         GetInput();
 
-        //unityTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
-        //myTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
-
         unityTransform.LookAt(point, Vec3.Up);
         myTransform.LookAt(point, Vec3.Up);
 
         unityTransform.RotateAround(point.position, Vec3.Up, rotationX);
+        unityTransform.Rotate(0, rotationY, rotationZ);
         myTransform.RotateAround(point.position, Vec3.Up, rotationX);
+        myTransform.Rotate(0, rotationY, rotationZ);
 
         unityTransform.localScale = new Vector3(scale, scale, scale);
         myTransform.SetLocalScale(new Vector3(scale, scale, scale));

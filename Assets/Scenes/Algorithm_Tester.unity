@@ -445,7 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 485138262}
   objectsQnty: 128
-  algorithms: 3
+  algorithms: 5
   delay: 0
 --- !u!4 &1048124294
 Transform:

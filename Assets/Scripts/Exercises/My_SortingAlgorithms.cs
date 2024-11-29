@@ -104,6 +104,7 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
 
     public static IEnumerator SelectionSort(List<T> array, float delay)
     {
+        //find the minimumin element in the array and swap it with (i)
         for (int i = 0; i < array.Count - 1; i++)
         {
             int minIndex = i;
@@ -227,9 +228,6 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
                     scaledArray[index++] = (int)(getKey(item) * precision);
                 }
             }
-
-            // Pausar la ejecución para simular animación o espera
-            //yield return new WaitForSeconds(delay);
         }
     }
 
@@ -285,49 +283,119 @@ public static class My_SortingAlgorithms<T> where T : IComparable<T>
         }
     }
 
-    public static void RadixSortMSD(List<T> array, float delay, System.Func<T, int> keySelector)
+    public static void RadixSortMSD(List<T> array, float delay)
     {
-        List<T> CloneList(List<T> list)
+        void RecursiveRadixMSD(List<T> list, List<uint> ints, int from, int to, int digit)
         {
-            List<T> clone = new List<T>(list.Count);
-            foreach (var item in list)
-            {
-                clone.Add(item);
-            }
-            return clone;
-        }
-
-        void Sort(List<T> array, int low, int high, int place)
-        {
-            if (low >= high || place < 0)
+            if (to <= from)
             {
                 return;
             }
 
-            var buckets = new List<T>[10];
-            for (int i = 0; i < 10; i++)
+            List<int>[] buckets = new List<int>[10];
+
+            for (int i = 0; i < buckets.Length; i++)
             {
-                buckets[i] = new List<T>();
+                buckets[i] = new List<int>();
             }
 
-            for (int i = low; i <= high; i++)
+            for (int j = from; j <= to; j++)
             {
-                int digit = (keySelector(array[i]) / (int)Math.Pow(10, place)) % 10;
-                buckets[digit].Add(array[i]);
+                int digitResult = (int)(ints[j] / Mathf.Pow(10, digit - 1) % 10);
+                buckets[digitResult].Add(j);
             }
 
-            int index = low;
-            for (int i = 0; i < 10; i++)
+            List<T> auxList = new List<T>(list);
+            List<uint> auxNumbers = new List<uint>(ints);
+
+            int iterator = from;
+            for (int bucketIndex = 0; bucketIndex < buckets.Length; bucketIndex++)
             {
-                Sort(buckets[i], 0, buckets[i].Count - 1, place - 1);
-                foreach (var item in buckets[i])
+                for (int i = 0; i < buckets[bucketIndex].Count; i++, iterator++)
                 {
-                    array[index++] = item;
+                    auxList[iterator] = list[buckets[bucketIndex][i]];
+                    auxNumbers[iterator] = ints[buckets[bucketIndex][i]];
                 }
+            }
+
+            for (int i = from; i <= to; i++)
+            {
+                list[i] = auxList[i];
+                ints[i] = auxNumbers[i];
+            }
+
+            int prevPos = from;
+
+            foreach (var element in buckets)
+            {
+                if (element.Count < 1)
+                    continue;
+
+                RecursiveRadixMSD(list, ints, prevPos, prevPos + element.Count - 1, digit - 1);
+                prevPos += element.Count;
             }
         }
 
-        Sort(array, 0, array.Count - 1, 3);
+        int GetNumberOfDigits(int number)
+        {
+            if (number < 10)
+                return 1;
+
+            return 1 + GetNumberOfDigits(number / 10);
+        }
+
+        uint GetIntFromBitArray(List<uint> bits)
+        {
+            uint result = 0;
+            for (int i = bits.Count - 1; i >= 0; i--)
+            {
+                result *= 2;
+                result += bits[i];
+            }
+
+            return result;
+        }
+
+        List<uint> GetIntsFromT(List<T> list)
+        {
+            List<BitArray> bitArrays = new List<BitArray>();
+
+            List<uint> ints = new List<uint>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                MemoryStream ms = new MemoryStream();
+                bf.Serialize(ms, list[i]);
+                bitArrays.Add(new BitArray(ms.ToArray()));
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                List<uint> bits = new List<uint>();
+                for (int j = bitArrays[i].Count - 40; j < bitArrays[i].Count - 8; j++)
+                {
+                    bits.Add(Convert.ToUInt32(bitArrays[i][j]));
+                }
+
+                ints.Add(GetIntFromBitArray(bits));
+            }
+
+            return ints;
+        }
+
+        List<uint> ints = GetIntsFromT(array);
+
+        uint biggestNum = ints[0];
+
+        for (int i = 1; i < ints.Count; i++)
+        {
+            if (ints[i] > biggestNum)
+                biggestNum = ints[i];
+        }
+
+        int maxDigits = GetNumberOfDigits(Convert.ToInt32(biggestNum));
+
+        RecursiveRadixMSD(array, ints, 0, array.Count - 1, maxDigits);
     }
 
     public static void IntroSort(List<T> array, float delay)

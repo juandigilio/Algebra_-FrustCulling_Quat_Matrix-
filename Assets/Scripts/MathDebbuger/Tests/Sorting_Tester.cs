@@ -28,9 +28,9 @@ public enum Algorithms
 //Merge
 //Heap
 //Intro
-
-
 //RadixMSD
+
+
 
 
 
@@ -62,7 +62,6 @@ public class Sorting_Tester : MonoBehaviour
         AlignObjectsInRow();
 
         currentAlgorithm = algorithms;
-        SetFrameRate();
     }
 
     void Update()
@@ -72,15 +71,12 @@ public class Sorting_Tester : MonoBehaviour
             currentAlgorithm = algorithms;
 
             ResetHeights();
-
-            SetFrameRate();
         }
 
         switch (algorithms)
         {
             case Algorithms.BitonicSort:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.BitonicSort(heights, delay));
                     My_SortingAlgorithms<float>.BitonicSort(heights, delay);
                     break;
                 }
@@ -106,7 +102,6 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.RadixSortLSD:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.RadixSortLSD(heights, delay, x => x));
                     My_SortingAlgorithms<float>.RadixSortLSD(heights, delay, x => x);
                     break;
                 }
@@ -122,13 +117,11 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.RadixSortMSD:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.RadixSortMSD(heights, delay, x => (int)(x * 10)));
-                    My_SortingAlgorithms<float>.RadixSortMSD(heights, delay, x => (int)(x * 10));
+                    My_SortingAlgorithms<float>.RadixSortMSD(heights, delay);
                     break;
                 }
             case Algorithms.IntroSort:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.IntroSort(heights, delay));
                     My_SortingAlgorithms<float>.IntroSort(heights, delay);
                     break;
                 }
@@ -144,13 +137,11 @@ public class Sorting_Tester : MonoBehaviour
                 }
             case Algorithms.MergeSort:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.MergeSort(heights, delay));
                     My_SortingAlgorithms<float>.MergeSort(heights, delay);
                     break;
                 }
             case Algorithms.HeapSort:
                 {
-                    //StartCoroutine(My_SortingAlgorithms<float>.HeapSort(heights, delay));
                     My_SortingAlgorithms<float>.HeapSort(heights, delay);
                     break;
                 }
@@ -210,17 +201,5 @@ public class Sorting_Tester : MonoBehaviour
         }
 
         SetTransformsScale();
-    }
-
-    void SetFrameRate()
-    {
-        if (algorithms == Algorithms.BitonicSort)
-        {
-            Application.targetFrameRate = 90;
-        }
-        else
-        {
-            Application.targetFrameRate = 60;
-        }
     }
 }
