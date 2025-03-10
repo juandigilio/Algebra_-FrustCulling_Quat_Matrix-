@@ -149,37 +149,18 @@ public class My_Matrix4x4
         //M20, M21, M22, M23
         //M30, M31, M32, M33
 
-        ///////////////////////////////
-        ////////////////////////
-        //aca tengo que llamar mejor a la funcion matrix * vec4 avivate juan!
-        //////////
-        ///
+        Vector4 column0 = new Vector4(b.M00, b.M10, b.M20, b.M30);
+        Vector4 column1 = new Vector4(b.M01, b.M11, b.M21, b.M31);
+        Vector4 column2 = new Vector4(b.M02, b.M12, b.M22, b.M32);
+        Vector4 column3 = new Vector4(b.M03, b.M13, b.M23, b.M33);
 
-        Vector4 column0 = new Vector4();
-        column0.x = a.M00 * b.M00 + a.M01 * b.M10 + a.M02 * b.M20 + a.M03 * b.M30;
-        column0.y = a.M00 * b.M01 + a.M01 * b.M11 + a.M02 * b.M21 + a.M03 * b.M31;
-        column0.z = a.M00 * b.M02 + a.M01 * b.M12 + a.M02 * b.M22 + a.M03 * b.M32;
-        column0.w = a.M00 * b.M03 + a.M01 * b.M13 + a.M02 * b.M23 + a.M03 * b.M33;
+        Vector4 resultCol0 = a * column0;
+        Vector4 resultCol1 = a * column1;
+        Vector4 resultCol2 = a * column2;
+        Vector4 resultCol3 = a * column3;
 
-        Vector4 column1 = new Vector4();
-        column0.x = a.M10 * b.M00 + a.M11 * b.M10 + a.M12 * b.M20 + a.M13 * b.M30;
-        column0.y = a.M10 * b.M01 + a.M11 * b.M11 + a.M12 * b.M21 + a.M13 * b.M31;
-        column0.z = a.M10 * b.M02 + a.M11 * b.M12 + a.M12 * b.M22 + a.M13 * b.M32;
-        column0.w = a.M10 * b.M03 + a.M11 * b.M13 + a.M12 * b.M23 + a.M13 * b.M33;
-
-        Vector4 column2 = new Vector4();
-        column0.x = a.M20 * b.M00 + a.M21 * b.M10 + a.M22 * b.M20 + a.M23 * b.M30;
-        column0.y = a.M20 * b.M01 + a.M21 * b.M11 + a.M22 * b.M21 + a.M23 * b.M31;
-        column0.z = a.M20 * b.M02 + a.M21 * b.M12 + a.M22 * b.M22 + a.M23 * b.M32;
-        column0.w = a.M20 * b.M03 + a.M21 * b.M13 + a.M22 * b.M23 + a.M23 * b.M33;
-
-        Vector4 column3 = new Vector4();
-        column0.x = a.M30 * b.M00 + a.M31 * b.M10 + a.M32 * b.M20 + a.M33 * b.M30;
-        column0.y = a.M30 * b.M01 + a.M31 * b.M11 + a.M32 * b.M21 + a.M33 * b.M31;
-        column0.z = a.M30 * b.M02 + a.M31 * b.M12 + a.M32 * b.M22 + a.M33 * b.M32;
-        column0.w = a.M30 * b.M03 + a.M31 * b.M13 + a.M32 * b.M23 + a.M33 * b.M33;
-
-        return new My_Matrix4x4(column0, column1, column2, column3);
+ 
+        return new My_Matrix4x4(resultCol0, resultCol1, resultCol2, resultCol3);
     }
 
     public static My_Matrix4x4 Zero
@@ -205,8 +186,6 @@ public class My_Matrix4x4
 
     public My_Matrix4x4 inverse
     {
-        // la inversa es la que al multiplicar una matriz por la inversa, se obtiene la matiz identidad
-        //la inversa es la determinante de toooodos los componentes
         get
         {
             //saco el cofactor
@@ -272,16 +251,12 @@ public class My_Matrix4x4
         //cambio filas por columnas
         get
         {
-            //M00, M01, M02, M03
-            //M10, M11, M12, M13
-            //M20, M21, M22, M23
-            //M30, M31, M32, M33
-            Vector4 column0 = new Vector4(M00, M01, M02, M03);
-            Vector4 column1 = new Vector4(M10, M11, M12, M13);
-            Vector4 column2 = new Vector4(M20, M21, M22, M23);
-            Vector4 column3 = new Vector4(M30, M31, M32, M33);
-
-            return new My_Matrix4x4(column0, column1, column2, column3);
+            return new My_Matrix4x4(
+                new Vector4(M00, M10, M20, M30),
+                new Vector4(M01, M11, M21, M31),
+                new Vector4(M02, M12, M22, M32),
+                new Vector4(M03, M13, M23, M33)
+            );
         }
     }
 
@@ -300,6 +275,7 @@ public class My_Matrix4x4
         }
     }
 
+    //escala global (es lossy porque puede no ser 100 precisa)
     public Vec3 LossyScale =>
         new(
             //escala ejex
@@ -312,6 +288,7 @@ public class My_Matrix4x4
 
     public float determinant
     {
+        //si determinante es 0, la matriz no tiene inversa
         get
         {
             return M03 * M12 * M21 * M30 - M02 * M13 * M21 * M30 -
@@ -608,7 +585,7 @@ public class My_Matrix4x4
         //M10, M11, M12, M13
         //M20, M21, M22, M23
         //M30, M31, M32, M33
-
+        //perpendicularidad en los ejes
         return Vec3.Dot(new Vec3(M00, M10, M20), new Vec3(M01, M11, M21)) <= float.Epsilon &&
                Vec3.Dot(new Vec3(M01, M11, M21), new Vec3(M02, M12, M22)) <= float.Epsilon &&
                Vec3.Dot(new Vec3(M00, M10, M20), new Vec3(M02, M12, M22)) <= float.Epsilon;

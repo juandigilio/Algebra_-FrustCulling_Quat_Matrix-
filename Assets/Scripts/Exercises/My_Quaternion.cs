@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using CustomMath;
+//using System.Numerics;
 
 public struct My_Quaternion
 {
@@ -144,6 +145,10 @@ public struct My_Quaternion
         //tabla de multiplicacion de quat
 
         return result;
+        //wx yz
+        //wy zx
+        //wz xy
+        //ww xx yy zz
     }
 
     public static My_Quaternion operator *(My_Quaternion q, float scalar)
@@ -344,7 +349,7 @@ public struct My_Quaternion
 
     public static float Dot(My_Quaternion q1, My_Quaternion q2)
     {
-        //
+        //siempre deben estar normalizados
         return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
     }
 
@@ -414,11 +419,11 @@ public struct My_Quaternion
 
     public static My_Quaternion FromToRotation(Vec3 fromDirection, Vec3 toDirection)
     {
-        //calculo el eje de rotacion
+        //eje (vec)
         Vec3 axis = Vec3.Cross(fromDirection, toDirection);
-        //calculo el angulo
+        //angulo (escalar)
         float angle = Vec3.Angle(fromDirection, toDirection);
-        //ya tengo la parte vectorial y la parte escalar
+        
         return AngleAxis(angle, axis);
     }
 
@@ -486,10 +491,10 @@ public struct My_Quaternion
         //hago Acos para pasar del coseno omega a omega que es el angulo de ese coseno
         float omega = Mathf.Acos(cosOmega);
 
-        //                                      lo divido por el seno de omega para normalizarlo
+        //lo divido por el seno de omega para normalizarlo
         coeff1 = Mathf.Sin((1 - t) * omega) / Mathf.Sin(omega);
 
-        //          busco el camino mas corto
+        //busco el camino mas corto
         coeff2 = (cosOmega < 0.0f ? -1 : 1) * (Mathf.Sin(t * omega) / Mathf.Sin(omega));
 
 
@@ -517,15 +522,54 @@ public struct My_Quaternion
         return SlerpUnclamped(q1, q2, t);
     }
 
-    //public static My_Quaternion FromTRS(My_Matrix4x4 matrix)
-    //{
-    //    Vec3 xAxis = new Vec3(matrix.M00, matrix.M01, matrix.M02).normalized;
-    //    Vec3 yAxis = new Vec3(matrix.M10, matrix.M11, matrix.M12).normalized;
-    //    Vec3 zAxis = new Vec3(matrix.M20, matrix.M21, matrix.M22).normalized;
+    public static My_Quaternion FromTRS(My_Matrix4x4 matrix)
+    {
+        float m00 = matrix.M00, m01 = matrix.M01, m02 = matrix.M02;
+        float m10 = matrix.M10, m11 = matrix.M11, m12 = matrix.M12;
+        float m20 = matrix.M20, m21 = matrix.M21, m22 = matrix.M22;
 
-    //    // Ahora puedes crear un cuaternión a partir de los ejes
-    //    return new My_Quaternion(xAxis, yAxis, zAxis);
-    //}
+        float trace = m00 + m11 + m22;
+
+        My_Quaternion q = new My_Quaternion();
+
+        if (trace > 0)
+        {
+            float s = 0.5f / Mathf.Sqrt(trace + 1.0f);
+            q.w = 0.25f / s;
+            q.x = (m21 - m12) * s;
+            q.y = (m02 - m20) * s;
+            q.z = (m10 - m01) * s;
+        }
+        else
+        {
+            if (m00 > m11 && m00 > m22)
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m00 - m11 - m22);
+                q.w = (m21 - m12) / s;
+                q.x = 0.25f * s;
+                q.y = (m01 + m10) / s;
+                q.z = (m02 + m20) / s;
+            }
+            else if (m11 > m22)
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m11 - m00 - m22);
+                q.w = (m02 - m20) / s;
+                q.x = (m01 + m10) / s;
+                q.y = 0.25f * s;
+                q.z = (m12 + m21) / s;
+            }
+            else
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m22 - m00 - m11);
+                q.w = (m10 - m01) / s;
+                q.x = (m02 + m20) / s;
+                q.y = (m12 + m21) / s;
+                q.z = 0.25f * s;
+            }
+        }
+
+        return q;
+    }
 
     public static My_Quaternion FromRotationMatrix(My_Matrix4x4 matrix)
     {
