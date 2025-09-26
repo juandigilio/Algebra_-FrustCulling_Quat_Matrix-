@@ -20,7 +20,7 @@ public class TransformTester : MonoBehaviour
     [SerializeField] private float rotationY;
     [SerializeField] private float rotationZ;
     [SerializeField] private float inputSize;
-    //[SerializeField] private float scale;
+    [SerializeField] private float scale;
 
     //[SerializeField] private Vector3 unityLocalEuler;
     [SerializeField] private Vector3 myLocalEuler;
@@ -69,34 +69,33 @@ public class TransformTester : MonoBehaviour
     {
         GetInput();
 
-        //unityTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
-        //myTransform.Rotate(rotationX, rotationY, rotationZ, Space.World);
-
         unityTransform.LookAt(point, Vec3.Up);
         myTransform.LookAt(point, Vec3.Up);
 
         unityTransform.RotateAround(point.position, Vec3.Up, rotationX);
+        unityTransform.Rotate(0, rotationY, rotationZ);
         myTransform.RotateAround(point.position, Vec3.Up, rotationX);
+        myTransform.Rotate(0, rotationY, rotationZ);
 
-        //unityTransform.localScale = new Vector3(scale, scale, scale);
-        //myTransform.SetLocalScale(new Vector3(scale, scale, scale));
+        unityTransform.localScale = new Vector3(scale, scale, scale);
+        myTransform.SetLocalScale(new Vector3(scale, scale, scale));
 
 
         testTransform.SetLocalPositionAndRotation(myTransform.localPosition, myTransform.localRotation.ToQuaternion());
         testTransform.SetPositionAndRotation(myTransform.position, myTransform.rotation.ToQuaternion());
-        //testTransform.localScale = myTransform.localScale;
+        testTransform.localScale = myTransform.localScale;
 
         //children_1.SetLocalPositionAndRotation(myChildren_1.localPosition, myChildren_1.localRotation.ToQuaternion());
         children_1.SetPositionAndRotation(myChildren_1.position, myChildren_1.rotation.ToQuaternion());
-        //children_1.localScale = myChildren_1.localScale;
+        children_1.localScale = myChildren_1.localScale;
 
         //children_2.SetLocalPositionAndRotation(myChildren_2.localPosition, myChildren_2.localRotation.ToQuaternion());
         children_2.SetPositionAndRotation(myChildren_2.position, myChildren_2.rotation.ToQuaternion());
-        //children_2.localScale = myChildren_2.localScale;
+        children_2.localScale = myChildren_2.localScale;
 
         //childOfChild.SetLocalPositionAndRotation(myGrandChildren.localPosition, myGrandChildren.localRotation.ToQuaternion());
         childOfChild.SetPositionAndRotation(myGrandChildren.position, myGrandChildren.rotation.ToQuaternion());
-        //childOfChild.localScale = myGrandChildren.localScale;
+        childOfChild.localScale = myGrandChildren.localScale;
 
 
         UpdateHood();

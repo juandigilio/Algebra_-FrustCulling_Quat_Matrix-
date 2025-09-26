@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using CustomMath;
+//using System.Numerics;
 
 public struct My_Quaternion
 {
@@ -52,6 +53,11 @@ public struct My_Quaternion
         }
     }
 
+    public Quaternion ToQuaternion()
+    {
+        return new Quaternion(x, y, z, w);
+    }
+
     public My_Quaternion(float x, float y, float z, float w)
     {
         this.x = x;
@@ -66,6 +72,14 @@ public struct My_Quaternion
         y = vectorPart.y;
         z = vectorPart.z;
         w = scalarPart;
+    }
+
+    public My_Quaternion(Quaternion q)
+    {
+        x = q.x;
+        y = q.y;
+        z = q.z;
+        w = q.w;
     }
 
     public static My_Quaternion operator +(My_Quaternion q1, My_Quaternion q2)
@@ -102,6 +116,19 @@ public struct My_Quaternion
         // tambien podria verse como Dot(a,b) = 0 o < epsilon;
     }
 
+    public static bool operator ==(Quaternion q1, My_Quaternion q2)
+    {
+        return (q1.x == q2.x)
+            && (q1.y == q2.y)
+            && (q1.z == q2.z)
+            && (q1.w == q2.w);
+    }
+
+    public static bool operator !=(Quaternion q1, My_Quaternion q2)
+    {
+        return !(q1 == q2);
+    }
+
     public static bool operator !=(My_Quaternion q1, My_Quaternion q2)
     {
         return !(q1 == q2);
@@ -118,6 +145,10 @@ public struct My_Quaternion
         //tabla de multiplicacion de quat
 
         return result;
+        //wx yz
+        //wy zx
+        //wz xy
+        //ww xx yy zz
     }
 
     public static My_Quaternion operator *(My_Quaternion q, float scalar)
@@ -318,7 +349,7 @@ public struct My_Quaternion
 
     public static float Dot(My_Quaternion q1, My_Quaternion q2)
     {
-        //
+        //siempre deben estar normalizados
         return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
     }
 
@@ -388,11 +419,11 @@ public struct My_Quaternion
 
     public static My_Quaternion FromToRotation(Vec3 fromDirection, Vec3 toDirection)
     {
-        //calculo el eje de rotacion
+        //eje (vec)
         Vec3 axis = Vec3.Cross(fromDirection, toDirection);
-        //calculo el angulo
+        //angulo (escalar)
         float angle = Vec3.Angle(fromDirection, toDirection);
-        //ya tengo la parte vectorial y la parte escalar
+        
         return AngleAxis(angle, axis);
     }
 
@@ -460,10 +491,10 @@ public struct My_Quaternion
         //hago Acos para pasar del coseno omega a omega que es el angulo de ese coseno
         float omega = Mathf.Acos(cosOmega);
 
-        //                                      lo divido por el seno de omega para normalizarlo
+        //lo divido por el seno de omega para normalizarlo
         coeff1 = Mathf.Sin((1 - t) * omega) / Mathf.Sin(omega);
 
-        //          busco el camino mas corto
+        //busco el camino mas corto
         coeff2 = (cosOmega < 0.0f ? -1 : 1) * (Mathf.Sin(t * omega) / Mathf.Sin(omega));
 
 
@@ -491,6 +522,113 @@ public struct My_Quaternion
         return SlerpUnclamped(q1, q2, t);
     }
 
+    public static My_Quaternion FromTRS(My_Matrix4x4 matrix)
+    {
+        float m00 = matrix.M00, m01 = matrix.M01, m02 = matrix.M02;
+        float m10 = matrix.M10, m11 = matrix.M11, m12 = matrix.M12;
+        float m20 = matrix.M20, m21 = matrix.M21, m22 = matrix.M22;
+
+        float trace = m00 + m11 + m22;
+
+        My_Quaternion q = new My_Quaternion();
+
+        if (trace > 0)
+        {
+            float s = 0.5f / Mathf.Sqrt(trace + 1.0f);
+            q.w = 0.25f / s;
+            q.x = (m21 - m12) * s;
+            q.y = (m02 - m20) * s;
+            q.z = (m10 - m01) * s;
+        }
+        else
+        {
+            if (m00 > m11 && m00 > m22)
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m00 - m11 - m22);
+                q.w = (m21 - m12) / s;
+                q.x = 0.25f * s;
+                q.y = (m01 + m10) / s;
+                q.z = (m02 + m20) / s;
+            }
+            else if (m11 > m22)
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m11 - m00 - m22);
+                q.w = (m02 - m20) / s;
+                q.x = (m01 + m10) / s;
+                q.y = 0.25f * s;
+                q.z = (m12 + m21) / s;
+            }
+            else
+            {
+                float s = 2.0f * Mathf.Sqrt(1.0f + m22 - m00 - m11);
+                q.w = (m10 - m01) / s;
+                q.x = (m02 + m20) / s;
+                q.y = (m12 + m21) / s;
+                q.z = 0.25f * s;
+            }
+        }
+
+        return q;
+    }
+
+    public static My_Quaternion FromRotationMatrix(My_Matrix4x4 matrix)
+    {
+        float trace = matrix.M00 + matrix.M11 + matrix.M22;
+        float s;
+
+        if (trace > 0)
+        {
+            s = Mathf.Sqrt(trace + 1.0f) * 2;
+
+            return new My_Quaternion
+                (
+                (matrix.M21 - matrix.M12) / s,
+                (matrix.M02 - matrix.M20) / s,
+                (matrix.M10 - matrix.M01) / s,
+                0.25f * s
+                );
+        }
+        else
+        {
+            if (matrix.M00 > matrix.M11 && matrix.M00 > matrix.M22)
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M00 - matrix.M11 - matrix.M22) * 2;
+
+                return new My_Quaternion
+                    (
+                    0.25f * s,
+                    (matrix.M01 + matrix.M10) / s,
+                    (matrix.M02 + matrix.M20) / s,
+                    (matrix.M21 - matrix.M12) / s
+                    );
+            }
+            else if (matrix.M11 > matrix.M22)
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M11 - matrix.M00 - matrix.M22) * 2;
+
+                return new My_Quaternion
+                    (
+                    (matrix.M01 + matrix.M10) / s,
+                    0.25f * s,
+                    (matrix.M12 + matrix.M21) / s,
+                    (matrix.M02 - matrix.M20) / s
+                    );
+            }
+            else
+            {
+                s = Mathf.Sqrt(1.0f + matrix.M22 - matrix.M00 - matrix.M11) * 2;
+
+                return new My_Quaternion
+                    (
+                    (matrix.M02 + matrix.M20) / s,
+                    (matrix.M12 + matrix.M21) / s,
+                    0.25f * s,
+                    (matrix.M10 - matrix.M01) / s
+                    );
+            }
+        }
+    }
+
     public static My_Quaternion RotateTowards(My_Quaternion from, My_Quaternion to, float maxDegreesDelta)
     {
         float angle = Angle(from, to);
@@ -507,14 +645,15 @@ public struct My_Quaternion
     {
         Vec3 tempForward = forward.normalized;
         Vec3 tempRight = Vec3.Cross(upwards, forward).normalized;
-        Vec3 tempUp = upwards.normalized;
 
-        //M00, M01, M02, M03
-        //M10, M11, M12, M13
-        //M20, M21, M22, M23
-        //M30, M31, M32, M33
-        
-        //asigno los vectores a una matriz 3x3
+        if (Vec3.Dot(tempRight, upwards) < 0)
+        {
+            tempRight = -tempRight;
+        }
+
+        Vec3 tempUp = Vec3.Cross(tempForward, tempRight).normalized;
+
+        // Asigno los vectores a una matriz 3x3
         float m00 = tempRight.x;
         float m01 = tempRight.y;
         float m02 = tempRight.z;

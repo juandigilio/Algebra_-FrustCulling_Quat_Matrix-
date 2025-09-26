@@ -93,6 +93,16 @@ namespace CustomMath
             return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
         }
 
+        public static Vec3 operator +(Vec3 leftV3, Vector3 rightV3)
+        {
+            return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
+        }
+
+        public static Vec3 operator +(Vector3 leftV3, Vec3 rightV3)
+        {
+            return new Vec3(leftV3.x + rightV3.x, leftV3.y + rightV3.y, leftV3.z + rightV3.z);
+        }
+
         public static Vec3 operator -(Vec3 leftV3, Vec3 rightV3)
         {
             return new Vec3(leftV3.x - rightV3.x, leftV3.y - rightV3.y, leftV3.z - rightV3.z);
@@ -147,6 +157,15 @@ namespace CustomMath
             float dot = Dot(from.normalized, to.normalized);
 
             return (float)Math.Acos(Math.Clamp(dot, -1f, 1f)) * Mathf.Rad2Deg;
+        }
+
+        public static Vec3 Inverse(Vec3 vec)
+        {
+            return new Vec3(
+                vec.x != 0 ? 1 / vec.x : 0,
+                vec.y != 0 ? 1 / vec.y : 0,
+                vec.z != 0 ? 1 / vec.z : 0
+            );
         }
 
         public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)
@@ -238,6 +257,11 @@ namespace CustomMath
             z *= scale.z;
         }
 
+        public static Vec3 Scale(Vec3 a, Vec3 b)
+        {
+            return new Vec3(a.x * b.x, a.y * b.y, a.z * b.z);
+        }
+
         public void Normalize()
         {
             float magnitude = Magnitude(this);
@@ -248,6 +272,15 @@ namespace CustomMath
                 y /= magnitude;
                 z /= magnitude;
             }
+        }
+
+        public static Vec3 Divide(Vec3 a, Vec3 b)
+        {
+            return new Vec3(
+                b.x != 0 ? a.x / b.x : 0,
+                b.y != 0 ? a.y / b.y : 0,
+                b.z != 0 ? a.z / b.z : 0
+            );
         }
 
         public Vector3 ToVector3()
